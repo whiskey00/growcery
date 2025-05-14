@@ -1,90 +1,66 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import CustomerLayout from '@/Layouts/CustomerLayout';
+import { Link, router } from '@inertiajs/react';
 
-export default function Landing({ isLoggedIn, role }) {
-
-    const getDashboardLink = () => {
-        if (role === 'admin') return '/admin';
-        if (role === 'vendor') return '/vendor';
-        if (role === 'customer') return '/customer';
-        return '/dashboard'; // fallback
+export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
+    const handleAddToCart = (id) => {
+        // TODO: Wire this to your real cart system
+        alert(`Added product ${id} to cart!`);
     };
 
     return (
-        <div className="bg-gray-100 text-gray-800">
-            {/* Navbar */}
-            <nav className="flex justify-between items-center p-4 bg-white shadow">
-                        <h1 className="text-xl font-bold text-green-700">Growcery</h1>
-
-                        {isLoggedIn ? (
-                            <div className="flex gap-4">
-                                <Link
-                                    href={getDashboardLink()}
-                                    className="text-sm text-green-700 hover:underline"
-                                >
-                                    Dashboard
-                                </Link>
-                                <Link
-                                    href="/logout"
-                                    method="post"
-                                    as="button"
-                                    className="text-sm text-gray-600 hover:underline"
-                                >
-                                    Logout
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="flex gap-4">
-                                <Link href="/login" className="text-sm text-gray-600 hover:text-green-600">Login</Link>
-                                <Link href="/register" className="text-sm text-green-600 font-medium hover:underline">Register</Link>
-                            </div>
-                        )}
-                </nav>
-
-            {/* Hero Banner */}
-            <section className="w-full h-64 bg-green-200 flex items-center justify-center text-center">
-                <div>
-                    <h2 className="text-3xl font-bold mb-2">Farm Fresh to Your Table</h2>
-                    <p className="text-sm text-gray-700">Buy directly from trusted local farmers</p>
+        <CustomerLayout>
+            <div className="text-center mb-12">
+                <h1 className="text-4xl font-bold text-green-800 mb-4">Welcome to Growcery</h1>
+                <p className="text-gray-700">Fresh produce from trusted local farmers. Buy directly, support locally.</p>
+                <div className="mt-6 flex justify-center gap-4">
+                    <a href="/products" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                        Start Shopping
+                    </a>
                 </div>
-            </section>
+            </div>
 
-            {/* Categories */}
-            <section className="py-6 px-4 max-w-6xl mx-auto">
-                <h3 className="text-lg font-semibold mb-4">Categories</h3>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                    {["Vegetables", "Fruits", "Rice", "Bundles", "Leafy Greens", "Root Crops"].map((cat, idx) => (
-                        <div key={idx} className="bg-white rounded shadow p-3 text-center hover:shadow-md cursor-pointer">
-                            <img src={`https://placehold.co/100x100?text=${cat}`} alt={cat} className="mx-auto mb-2" />
-                            <p className="text-sm font-medium">{cat}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Featured Products */}
-            <section className="py-6 px-4 max-w-6xl mx-auto">
-                <h3 className="text-lg font-semibold mb-4">Featured Products</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(id => (
-                        <div key={id} className="bg-white rounded shadow hover:shadow-md">
-                            <img src="https://placehold.co/300x200?text=Product" alt="Product" className="w-full h-40 object-cover rounded-t" />
-                            <div className="p-3">
-                                <p className="text-sm font-semibold">Organic Tomatoes</p>
-                                <p className="text-green-600 font-bold text-sm mt-1">₱75 / kg</p>
-                                <button className="mt-2 w-full bg-green-600 text-white text-sm py-1 rounded hover:bg-green-700">
+            <div className="max-w-6xl mx-auto px-4">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Featured Products</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {featuredProducts.map(product => (
+                        <div key={product.id} className="bg-white rounded shadow p-4 hover:shadow-md">
+                            <img
+                                src="https://placehold.co/300x200?text=Product"
+                                alt={product.name}
+                                className="w-full h-36 object-cover rounded mb-2"
+                            />
+                            <h3 className="text-lg font-semibold">{product.name}</h3>
+                            <p className="text-sm text-gray-500">{product.category}</p>
+                            <p className="text-green-600 font-bold text-sm mb-2">₱{product.price}</p>
+                            <div className="flex gap-2">
+                                <Link
+                                    href={`/products/${product.id}`}
+                                    className="flex-1 flex items-center justify-center text-white bg-green-600 py-1 rounded hover:bg-green-700 text-sm"
+                                >
                                     View
+                                </Link>
+                                <button
+                                    onClick={() => handleAddToCart(product.id)}
+                                    className="p-2 bg-yellow-500 rounded hover:bg-yellow-600 flex items-center justify-center"
+                                    title="Add to Cart"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={1.5}
+                                        stroke="currentColor"
+                                        className="w-5 h-5 text-white"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.837l.383 1.436m0 0L6.75 14.25a1.125 1.125 0 001.09.855h9.21a1.125 1.125 0 001.09-.855l1.386-6.36a.75.75 0 00-.728-.885H6.272m-.166 0L5.25 5.25m0 0H3m3.75 13.5a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm10.5 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                                    </svg>
                                 </button>
                             </div>
                         </div>
                     ))}
                 </div>
-            </section>
-
-            {/* Footer */}
-            <footer className="bg-white text-center text-sm text-gray-500 py-4 mt-10 border-t">
-                © {new Date().getFullYear()} Growcery. All rights reserved.
-            </footer>
-        </div>
+            </div>
+        </CustomerLayout>
     );
 }

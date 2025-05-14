@@ -7,21 +7,15 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
      */
-    public function create(): Response
+    public function create()
     {
-        return Inertia::render('Auth/Login', [
-            'canResetPassword' => Route::has('password.request'),
-            'status' => session('status'),
-        ]);
+        return inertia('Auth/Login');
     }
 
     /**
@@ -30,21 +24,19 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
+
         $request->session()->regenerate();
 
         $user = $request->user();
 
-        switch ($user->role) {
-            case 'admin':
-                return redirect('/admin');
-            case 'vendor':
-                return redirect('/vendor');
-            case 'customer':
-                return redirect('/customer');
-            default:
-                return redirect('/');
-        }
+        return match ($user->role) {
+            'admin' => redirect('/admin'),
+            'vendor' => redirect('/vendor'),
+            'customer' => redirect('/customer'),
+            default => redirect('/'),
+        };
     }
+
     /**
      * Destroy an authenticated session.
      */

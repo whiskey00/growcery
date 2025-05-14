@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\ProductBrowseController;
+use App\Http\Controllers\Customer\OrderController;
+use App\Http\Controllers\LandingPageController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +22,8 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/', [LandingPageController::class, 'index']);
+
 // Login
 Route::get('/login', function () {
     if (auth()->check()) {
@@ -32,6 +37,8 @@ Route::get('/login', function () {
 
     return app(AuthenticatedSessionController::class)->create(request());
 })->name('login');
+
+Route::get('/products', [ProductBrowseController::class, 'index'])->name('products.index');
 
 // Register
 Route::get('/register', function () {
@@ -49,7 +56,6 @@ Route::get('/register', function () {
 
     // Authenticated users only
     Route::middleware(['auth', 'verified'])->group(function () {
-        Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
 
     Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
@@ -77,6 +83,7 @@ Route::get('/register', function () {
     // Customer-only
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
         Route::get('/', fn () => Inertia::render('Customer/Dashboard'))->name('dashboard');
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     });
 
 });
