@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ProductBrowseController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\Vendor\VendorDashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 
@@ -76,9 +77,15 @@ Route::get('/register', function () {
     });
 
     // Vendor-only
-    Route::middleware('role:vendor')->prefix('vendor')->name('vendor.')->group(function () {
-        Route::get('/', fn () => Inertia::render('Vendor/Dashboard'))->name('dashboard');
+    Route::middleware(['auth', 'role:vendor'])
+        ->prefix('vendor')
+        ->name('vendor.')
+        ->group(function () {
+            Route::get('/', fn () => redirect()->route('vendor.dashboard'));
+            Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
     });
+
+
 
     // Customer-only
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
