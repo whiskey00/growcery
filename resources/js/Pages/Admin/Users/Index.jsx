@@ -1,12 +1,13 @@
-import AdminLayout from "@/Layouts/AdminLayout";
 import React, { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 export default function Index({ users = [] }) {
     const [search, setSearch] = useState('');
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
-        // You can implement search with debounce or server-side later
+        // TODO: implement server-side search
     };
 
     const handlePageChange = (url) => {
@@ -16,7 +17,15 @@ export default function Index({ users = [] }) {
     return (
         <AdminLayout>
             <div className="container mx-auto p-6">
-                <h1 className="text-3xl font-bold mb-4">Users Management</h1>
+                <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-3xl font-bold">Users Management</h1>
+                    <Link
+                        href="/admin/users/create"
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    >
+                        + Add User
+                    </Link>
+                </div>
 
                 <input 
                     type="text"
@@ -44,8 +53,22 @@ export default function Index({ users = [] }) {
                                         <td className="px-6 py-3">{user.email}</td>
                                         <td className="px-6 py-3 capitalize">{user.role}</td>
                                         <td className="px-6 py-3 space-x-2">
-                                            <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Edit</button>
-                                            <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</button>
+                                            <Link
+                                                href={`/admin/users/${user.id}/edit`}
+                                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                                            >
+                                                Edit
+                                            </Link>
+                                            <button
+                                                onClick={() => {
+                                                    if (confirm(`Delete ${user.name}?`)) {
+                                                        router.delete(`/admin/users/${user.id}`);
+                                                    }
+                                                }}
+                                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))

@@ -2,14 +2,15 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\ProductBrowseController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\Vendor\VendorDashboardController;
+use App\Http\Controllers\Vendor\ProductController as VendorProductController;
+use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-
 use Inertia\Inertia;
 
 // Public route
@@ -55,8 +56,8 @@ Route::get('/register', function () {
     return app(RegisteredUserController::class)->create(request());
 })->name('register');
 
-    // Authenticated users only
-    Route::middleware(['auth', 'verified'])->group(function () {
+// Authenticated users only
+Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
@@ -73,19 +74,15 @@ Route::get('/register', function () {
         Route::resource('users', UserController::class);
 
         // Products
-        Route::resource('products', ProductController::class);
+        Route::resource('products', AdminProductController::class);
     });
 
     // Vendor-only
-    Route::middleware(['auth', 'role:vendor'])
-        ->prefix('vendor')
-        ->name('vendor.')
-        ->group(function () {
-            Route::get('/', fn () => redirect()->route('vendor.dashboard'));
-            Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
+    Route::middleware('role:vendor')->prefix('vendor')->name('vendor.')->group(function () {
+        Route::get('/', fn () => redirect()->route('vendor.dashboard'));
+        Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
+        Route::resource('products', VendorProductController::class)->except(['show']);
     });
-
-
 
     // Customer-only
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
