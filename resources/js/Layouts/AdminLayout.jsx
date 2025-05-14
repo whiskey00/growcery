@@ -12,7 +12,7 @@ const AdminLayout = ({ children }) => {
                     </Link>
                     <ul>
                         <li className="mb-4">
-                            <Link href="/admin" className="text-white hover:bg-gray-700 p-2 rounded block">Dashboard Overview</Link>
+                            <Link href="/admin" className="text-white hover:bg-gray-700 p-2 rounded block">Overview</Link>
                         </li>
                         <li className="mb-4">
                             <Link href="/admin/users" className="text-white hover:bg-gray-700 p-2 rounded block">Users</Link>

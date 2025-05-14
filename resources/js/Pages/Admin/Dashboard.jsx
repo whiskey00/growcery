@@ -4,6 +4,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 export default function Dashboard() {
     return (
         <AdminLayout>
+            <h1 className="text-3xl font-bold mb-4">Dashboard Overview</h1>
             <div className="grid gap-6 md:grid-cols-3">
                 <div className="bg-gray-50 p-6 rounded border">
                     <h2 className="text-lg font-semibold text-gray-700 mb-2">Users</h2>
