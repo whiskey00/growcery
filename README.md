@@ -81,9 +81,9 @@ php artisan migrate
 - [x] Customer dashboard and navigation
 - [x] Product browsing with search
 - [x] Order list and details UI
-- [ ] Full cart and checkout process
-- [ ] Vendor management tools
-- [ ] Order lifecycle and payment integration
+- [x] Full cart and checkout process
+- [x] Vendor management tools
+- [x] Order lifecycle and payment integration
 
 ## Contribution
 
