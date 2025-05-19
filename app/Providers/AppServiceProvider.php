@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Product;
 use App\Policies\ProductPolicy;
+use Illuminate\Support\Facades\View;
+use Inertia\Inertia;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -21,8 +23,15 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        Vite::prefetch(concurrency: 3);
+        Inertia::share([
+            'auth' => function () {
+                return [
+                    'user' => auth()->check() ? auth()->user() : null,
+                ];
+            },
+        ]);
     }
+
 }

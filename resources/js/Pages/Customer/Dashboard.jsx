@@ -44,8 +44,8 @@ export default function Dashboard() {
                         </div>
                     </Link>
 
-                    {/* Edit Profile */}
-                    <Link href="/profile" className="bg-gray-50 border rounded p-5 hover:shadow-md transition">
+                    {/* View Profile */}
+                    <Link href={route('customer.profile.view')} className="bg-gray-50 border rounded p-5 hover:shadow-md transition">
                         <div className="flex items-center gap-4">
                             <div className="bg-green-100 text-green-700 p-2 rounded">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,8 +53,8 @@ export default function Dashboard() {
                                 </svg>
                             </div>
                             <div>
-                                <p className="font-semibold">Edit Profile</p>
-                                <p className="text-sm text-gray-500">Update your personal information</p>
+                                <p className="font-semibold">View Profile</p>
+                                <p className="text-sm text-gray-500">Check your personal information</p>
                             </div>
                         </div>
                     </Link>
