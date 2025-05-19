@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\ProductBrowseController;
@@ -10,8 +9,8 @@ use App\Http\Controllers\Vendor\VendorDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Vendor\ProductController as VendorProductController;
 use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
-use App\Http\Controllers\Customer\ProfileController as CustomerViewProfileController;
-use App\Http\Controllers\Customer\CustomerProfileController;
+use App\Http\Controllers\Customer\ProfileController;
+
 
 
 use Illuminate\Foundation\Application;
@@ -105,10 +104,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 
-        // Profile (View and Edit split)
+        // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile.view');
-        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+        Route::get('/profile/edit', [\App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile.edit');
+        Route::put('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
+
+
     });
 
 });

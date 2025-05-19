@@ -1,6 +1,8 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import { router } from '@inertiajs/react';
+
 
 import {
   regions,
@@ -10,7 +12,7 @@ import {
 } from 'phil-reg-prov-mun-brgy';
 
 export default function Edit({ user }) {
-    const { data, setData, put, processing, errors } = useForm({
+  const { data, setData, put, processing, errors } = useForm({
     full_name: user.full_name || '',
     mobile_number: user.mobile_number || '',
     region_code: user.region_code || '',
@@ -19,7 +21,7 @@ export default function Edit({ user }) {
     barangay: user.barangay || '',
     postal_code: user.postal_code || '',
     street_details: user.street_details || '',
-    });
+  });
 
   const [provinceList, setProvinceList] = useState([]);
   const [cityList, setCityList] = useState([]);
@@ -58,12 +60,26 @@ const handleSubmit = (e) => {
 
   const shipping_address = `${region}, ${province}, ${city}, ${data.barangay}, ${data.postal_code}, ${data.street_details}`;
 
-  // ✅ Use direct string path
-  put('/customer/profile', {
-    ...data,
+  console.log('🧾 FINAL payload:', {
+    full_name: data.full_name,
+    mobile_number: data.mobile_number,
     shipping_address,
   });
+
+router.put('/customer/profile', {
+  full_name: data.full_name,
+  mobile_number: data.mobile_number,
+  shipping_address,
+}, {
+  onSuccess: () => {
+    alert('✅ Profile updated successfully!');
+    router.visit('/customer/profile'); // redirect to view page
+  },
+});
+
+
 };
+
 
 
   return (
@@ -76,24 +92,30 @@ const handleSubmit = (e) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium">Full Name</label>
-              <input className="w-full border p-2 rounded"
+              <input
+                className="w-full border p-2 rounded"
                 value={data.full_name}
-                onChange={(e) => setData('full_name', e.target.value)} />
+                onChange={(e) => setData('full_name', e.target.value)}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium">Phone Number</label>
-              <input className="w-full border p-2 rounded"
+              <input
+                className="w-full border p-2 rounded"
                 value={data.mobile_number}
-                onChange={(e) => setData('mobile_number', e.target.value)} />
+                onChange={(e) => setData('mobile_number', e.target.value)}
+              />
             </div>
           </div>
 
           {/* Region */}
           <div>
             <label className="block text-sm font-medium">Region</label>
-            <select className="w-full border p-2 rounded"
+            <select
+              className="w-full border p-2 rounded"
               value={data.region_code}
-              onChange={(e) => setData('region_code', e.target.value)}>
+              onChange={(e) => setData('region_code', e.target.value)}
+            >
               <option value="">Select Region</option>
               {regions.map(region => (
                 <option key={region.reg_code} value={region.reg_code}>
@@ -106,10 +128,12 @@ const handleSubmit = (e) => {
           {/* Province */}
           <div>
             <label className="block text-sm font-medium">Province</label>
-            <select className="w-full border p-2 rounded"
+            <select
+              className="w-full border p-2 rounded"
               value={data.province_code}
               onChange={(e) => setData('province_code', e.target.value)}
-              disabled={!provinceList.length}>
+              disabled={!provinceList.length}
+            >
               <option value="">Select Province</option>
               {provinceList.map(province => (
                 <option key={province.prov_code} value={province.prov_code}>
@@ -122,10 +146,12 @@ const handleSubmit = (e) => {
           {/* City/Municipality */}
           <div>
             <label className="block text-sm font-medium">City/Municipality</label>
-            <select className="w-full border p-2 rounded"
+            <select
+              className="w-full border p-2 rounded"
               value={data.city_code}
               onChange={(e) => setData('city_code', e.target.value)}
-              disabled={!cityList.length}>
+              disabled={!cityList.length}
+            >
               <option value="">Select City/Municipality</option>
               {cityList.map(city => (
                 <option key={city.mun_code} value={city.mun_code}>
@@ -135,38 +161,42 @@ const handleSubmit = (e) => {
             </select>
           </div>
 
-            {/* Barangay */}
-            <div>
+          {/* Barangay */}
+          <div>
             <label className="block text-sm font-medium">Barangay</label>
             <select
-                className="w-full border p-2 rounded"
-                value={data.barangay}
-                onChange={(e) => setData('barangay', e.target.value)}
-                disabled={!barangayList.length}
+              className="w-full border p-2 rounded"
+              value={data.barangay}
+              onChange={(e) => setData('barangay', e.target.value)}
+              disabled={!barangayList.length}
             >
-                <option value="">Select Barangay</option>
-                {barangayList.map((brgy) => (
-                <option key={brgy.brgy_code} value={brgy.name}>
-                    {brgy.name}
+              <option value="">Select Barangay</option>
+              {barangayList.map((brgy, index) => (
+                <option key={`${brgy.name ?? brgy}-${index}`} value={brgy.name ?? brgy}>
+                  {brgy.name ?? brgy}
                 </option>
-                ))}
+              ))}
             </select>
-            </div>
+          </div>
 
           {/* Postal Code */}
           <div>
             <label className="block text-sm font-medium">Postal Code</label>
-            <input className="w-full border p-2 rounded"
+            <input
+              className="w-full border p-2 rounded"
               value={data.postal_code}
-              onChange={(e) => setData('postal_code', e.target.value)} />
+              onChange={(e) => setData('postal_code', e.target.value)}
+            />
           </div>
 
           {/* Street Details */}
           <div>
             <label className="block text-sm font-medium">Street Name, Building, House No.</label>
-            <textarea className="w-full border p-2 rounded"
+            <textarea
+              className="w-full border p-2 rounded"
               value={data.street_details}
-              onChange={(e) => setData('street_details', e.target.value)} />
+              onChange={(e) => setData('street_details', e.target.value)}
+            />
           </div>
 
           <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded" disabled={processing}>
