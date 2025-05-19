@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
-
+import useCart from '@/Stores/useCart';
 
 export default function CustomerLayout({ children }) {
     const { props } = usePage();
@@ -9,7 +9,7 @@ export default function CustomerLayout({ children }) {
     const user = props?.user;
     const role = props?.role;
     const [search, setSearch] = useState('');
-
+    const { cart } = useCart();
 
     const getDashboardLink = () => {
         if (role === 'admin') return '/admin';
@@ -19,7 +19,7 @@ export default function CustomerLayout({ children }) {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Navbar */}
             <header className="bg-white shadow p-4 sticky top-0 z-50 flex justify-between items-center">
                 {/* Logo */}
@@ -64,7 +64,14 @@ export default function CustomerLayout({ children }) {
 
                 {/* Auth buttons */}
                 <div className="flex items-center gap-4 text-sm">
-                    <Link href="/cart" className="hover:text-green-600">Cart</Link>
+                    <Link href="/customer/cart" className="relative hover:text-green-600">
+                        Cart
+                        {cart.length > 0 && (
+                            <span className="absolute -top-2 -right-3 bg-green-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                {cart.length}
+                            </span>
+                        )}
+                    </Link>
                     {isLoggedIn ? (
                         <>
                             <Link href={getDashboardLink()} className="text-green-700">Dashboard</Link>
@@ -80,14 +87,13 @@ export default function CustomerLayout({ children }) {
             </header>
 
             {/* Content */}
-            <main className="p-4 max-w-7xl mx-auto">
+            <main className="flex-grow p-6">
                 {children}
             </main>
 
-            <footer className="bg-white border-t text-center text-sm text-gray-500 py-4 mt-8">
+            <footer className="bg-white border-t text-center text-sm text-gray-500 py-4">
                 &copy; {new Date().getFullYear()} Growcery. All rights reserved.
             </footer>
-
         </div>
     );
 }

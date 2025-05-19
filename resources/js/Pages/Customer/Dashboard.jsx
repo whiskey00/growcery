@@ -3,8 +3,25 @@ import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function Dashboard() {
-    const { auth } = usePage().props;
+    const { auth, recentOrders } = usePage().props;
     const user = auth?.user;
+
+    const statusMap = {
+    All: '',
+    'To Pay': 'To Pay',
+    'To Ship': 'to_ship',
+    'To Receive': 'to_receive',
+    Completed: 'completed',
+    Cancelled: 'cancelled'
+    };
+
+    const getStatusLabel = (rawStatus) => {
+        for (const [label, status] of Object.entries(statusMap)) {
+            if (status === rawStatus) return label;
+        }
+    return rawStatus; // fallback if no match
+    };
+
 
     return (
         <CustomerLayout>
@@ -64,9 +81,36 @@ export default function Dashboard() {
                 <div className="mt-10 bg-gray-50 border rounded p-6">
                     <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
 
-                    {/* Empty state */}
-                    <p className="text-sm text-gray-600">You have no recent orders.</p>
-                    <p className="text-xs text-gray-400 mt-1">Once you place an order, it will appear here.</p>
+                    {recentOrders.length === 0 ? (
+                        <>
+                            <p className="text-sm text-gray-600">You have no recent orders.</p>
+                            <p className="text-xs text-gray-400 mt-1">Once you place an order, it will appear here.</p>
+                        </>
+                    ) : (
+                        <div className="space-y-4">
+                            {recentOrders.map(order => (
+                            <div key={order.id} className="bg-white border rounded p-4 shadow-sm">
+                                <div className="flex justify-between items-center text-sm mb-2">
+                                <span className="font-medium text-gray-700">Order #{order.id}</span>
+                                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                                    {getStatusLabel(order.status)}
+                                </span>
+                                </div>
+                                {order.products.map(product => (
+                                <div key={product.id} className="flex items-center gap-3 mb-2">
+                                    <img src={`/storage/${product.image}`} alt={product.name} className="w-12 h-12 rounded object-cover border" />
+                                    <div className="text-sm text-gray-700">
+                                    {product.name} ({product.pivot.quantity} pcs)
+                                    </div>
+                                </div>
+                                ))}
+                                <div className="text-right text-sm text-green-700 font-semibold">
+                                Total: ₱{Number(order.total_price).toLocaleString()}
+                                </div>
+                            </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </CustomerLayout>

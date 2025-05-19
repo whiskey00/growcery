@@ -74,7 +74,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                 <p className="text-xs text-gray-500">{product.category?.name}</p>
                                 <div className="mt-2 flex gap-2 items-stretch">
                                     <Link
-                                        href={`/products/${product.id}`}
+                                        href={`/customer/products/${product.id}`}
                                         className="flex-1 text-center text-sm text-white bg-green-600 py-2 rounded hover:bg-green-700"
                                     >
                                         View

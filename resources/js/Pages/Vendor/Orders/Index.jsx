@@ -52,7 +52,7 @@ export default function Index({ orders, activeStatus }) {
               orders.data.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-3">#{String(order.id).padStart(5, '0')}</td>
-                  <td className="px-6 py-3">{order.customer_name || 'N/A'}</td>
+                  <td className="px-6 py-3">{order.user?.full_name || 'N/A'}</td>
                   <td className="px-6 py-3">₱{order.total_price}</td>
                   <td className="px-6 py-3 capitalize">
                     <span className={`text-xs font-semibold px-2 py-1 rounded-full ${

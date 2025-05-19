@@ -19,7 +19,7 @@ class OrderController extends Controller
         $status = $request->query('status');
 
         $ordersQuery = Order::where('vendor_id', $vendorId)
-            ->with('products');
+            ->with(['products', 'user']);
 
         if ($status) {
             $ordersQuery->where('status', $status);
@@ -41,9 +41,12 @@ class OrderController extends Controller
             abort(403, 'Unauthorized access to this order.');
         }
 
-        $order->load(['products' => function ($q) {
-            $q->select('products.id', 'name', 'price')->withPivot('quantity');
-        }]);
+        $order->load([
+            'products' => function ($q) {
+                $q->select('products.id', 'name', 'price')->withPivot('quantity');
+            },
+            'user:id,full_name,mobile_number' // ✅ Load only needed user fields
+        ]);
 
         return Inertia::render('Vendor/Orders/Show', [
             'order' => $order,

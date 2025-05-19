@@ -10,6 +10,10 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Vendor\ProductController as VendorProductController;
 use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
 use App\Http\Controllers\Customer\ProfileController;
+use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\Customer\CustomerDashboardController;
+
 
 
 
@@ -95,22 +99,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Customer-only
     Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
-        // Redirect /customer → /customer/dashboard
         Route::redirect('/', '/customer/dashboard');
 
         // Dashboard
-        Route::get('/dashboard', fn () => Inertia::render('Customer/Dashboard'))->name('dashboard');
+        Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
 
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('customer.orders.show');
+
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile.view');
-        Route::get('/profile/edit', [\App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile.edit');
-        Route::put('/profile', [\App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('customer.profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
 
+        // Products & Cart
+        Route::get('/products/{id}', [\App\Http\Controllers\Customer\ProductController::class, 'show'])->name('customer.products.show');
+        Route::get('/cart', [CartController::class, 'index'])->name('customer.cart');
 
+        // Checkout
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout.index');
+        Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     });
+
 
 });
 

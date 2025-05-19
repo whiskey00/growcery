@@ -29,12 +29,17 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['products' => function ($q) {
-            $q->select('products.id', 'name', 'price')->withPivot('quantity');
-        }, 'vendor']);
+        $order->load([
+            'products' => function ($q) {
+                $q->select('products.id', 'name', 'price')->withPivot('quantity', 'option_label', 'option_price');
+            },
+            'vendor',
+            'user'
+        ]);
 
         return Inertia::render('Admin/Orders/Show', [
             'order' => $order
         ]);
     }
+
 }

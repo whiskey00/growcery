@@ -22,8 +22,10 @@ export default function Show({ order }) {
         <h1 className="text-2xl font-bold mb-6">Order #{String(order.id).padStart(5, '0')}</h1>
 
         <div className="mb-6">
-          <h2 className="font-semibold mb-2">Customer:</h2>
-          <p>{order.customer_name || 'N/A'}</p>
+        <h2 className="font-semibold mb-2">Customer Info:</h2>
+        <p><strong>Name:</strong> {order.user?.full_name || 'N/A'}</p>
+        <p><strong>Contact:</strong> {order.user?.mobile_number || 'N/A'}</p>
+        <p><strong>Address:</strong> {order.shipping_address || 'N/A'}</p>
         </div>
 
         <div className="mb-6">
