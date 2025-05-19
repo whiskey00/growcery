@@ -1,5 +1,5 @@
 import React from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import VendorLayout from '@/Layouts/VendorLayout';
 import { Link, router } from '@inertiajs/react';
 
 export default function Index({ orders, activeStatus }) {
@@ -11,13 +11,13 @@ export default function Index({ orders, activeStatus }) {
 
   const handleFilterChange = (status) => {
     const query = status === 'all' ? {} : { status };
-    router.get('/admin/orders', query, { preserveState: true });
+    router.get('/vendor/orders', query, { preserveState: true });
   };
 
   return (
-    <AdminLayout>
+    <VendorLayout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">All Orders</h1>
+        <h1 className="text-2xl font-bold">Order Management</h1>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2">
@@ -41,7 +41,7 @@ export default function Index({ orders, activeStatus }) {
           <thead className="bg-gray-100 text-left font-semibold uppercase text-gray-600">
             <tr>
               <th className="px-6 py-3">Order ID</th>
-              <th className="px-6 py-3">Vendor</th>
+              <th className="px-6 py-3">Customer</th>
               <th className="px-6 py-3">Total</th>
               <th className="px-6 py-3">Status</th>
               <th className="px-6 py-3 text-right">Actions</th>
@@ -52,7 +52,7 @@ export default function Index({ orders, activeStatus }) {
               orders.data.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-3">#{String(order.id).padStart(5, '0')}</td>
-                  <td className="px-6 py-3">{order.vendor?.name || '—'}</td>
+                  <td className="px-6 py-3">{order.customer_name || 'N/A'}</td>
                   <td className="px-6 py-3">₱{order.total_price}</td>
                   <td className="px-6 py-3 capitalize">
                     <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
@@ -60,10 +60,6 @@ export default function Index({ orders, activeStatus }) {
                         ? 'bg-red-100 text-red-600'
                         : order.status === 'completed'
                         ? 'bg-green-100 text-green-600'
-                        : order.status === 'to_ship'
-                        ? 'bg-blue-100 text-blue-600'
-                        : order.status === 'to_receive'
-                        ? 'bg-purple-100 text-purple-600'
                         : 'bg-yellow-100 text-yellow-600'
                     }`}>
                       {order.status.replace('_', ' ')}
@@ -71,7 +67,7 @@ export default function Index({ orders, activeStatus }) {
                   </td>
                   <td className="px-6 py-3 text-right">
                     <Link
-                      href={`/admin/orders/${order.id}`}
+                      href={`/vendor/orders/${order.id}`}
                       className="text-blue-600 hover:underline"
                     >
                       View
@@ -90,6 +86,7 @@ export default function Index({ orders, activeStatus }) {
         </table>
       </div>
 
+      {/* Pagination */}
       {orders.links && (
         <div className="flex justify-center mt-6 flex-wrap gap-2">
           {orders.links.map((link, index) => (
@@ -107,6 +104,6 @@ export default function Index({ orders, activeStatus }) {
           ))}
         </div>
       )}
-    </AdminLayout>
+    </VendorLayout>
   );
 }

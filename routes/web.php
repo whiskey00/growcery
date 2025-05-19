@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductBrowseController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\Vendor\VendorDashboardController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Vendor\ProductController as VendorProductController;
 use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
 use Illuminate\Foundation\Application;
@@ -75,6 +76,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Products
         Route::resource('products', AdminProductController::class);
+        
+        // Categories
+        Route::resource('categories', CategoryController::class);
+
+        // Orders
+        Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');       
     });
 
     // Vendor-only
@@ -82,6 +90,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', fn () => redirect()->route('vendor.dashboard'));
         Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
         Route::resource('products', VendorProductController::class)->except(['show']);
+        Route::get('/orders', [VendorOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [VendorOrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/status', [VendorOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::patch('/orders/{order}', [VendorOrderController::class, 'update'])->name('orders.update');
     });
 
     // Customer-only

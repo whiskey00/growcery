@@ -4,7 +4,6 @@ import { Link, router } from '@inertiajs/react';
 
 export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
     const handleAddToCart = (id) => {
-        // TODO: Wire this to your real cart system
         alert(`Added product ${id} to cart!`);
     };
 
@@ -22,16 +21,16 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
 
             <div className="max-w-6xl mx-auto px-4">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Featured Products</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {featuredProducts.map(product => (
                         <div key={product.id} className="bg-white rounded shadow p-4 hover:shadow-md">
                             <img
-                                src="https://placehold.co/300x200?text=Product"
+                                src={product.image ? `/storage/${product.image}` : "https://placehold.co/300x200?text=No+Image"}
                                 alt={product.name}
                                 className="w-full h-36 object-cover rounded mb-2"
                             />
                             <h3 className="text-lg font-semibold">{product.name}</h3>
-                            <p className="text-sm text-gray-500">{product.category}</p>
+                            <p className="text-sm text-gray-500">{product.category?.name}</p>
                             <p className="text-green-600 font-bold text-sm mb-2">₱{product.price}</p>
                             <div className="flex gap-2">
                                 <Link

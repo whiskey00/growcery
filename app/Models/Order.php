@@ -17,4 +17,10 @@ class Order extends Model
                     ->withPivot('quantity')
                     ->withTimestamps();
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(User::class, 'vendor_id');
+    }
+
 }

@@ -42,7 +42,7 @@ export default function Index({ products }) {
                             products.data.map((product) => (
                                 <tr key={product.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-3">{product.name}</td>
-                                    <td className="px-6 py-3">{product.category}</td>
+                                    <td className="px-6 py-3">{product.category?.name || '—'}</td>
                                     <td className="px-6 py-3">₱{product.price}</td>
                                     <td className="px-6 py-3">{product.quantity}</td>
                                     <td className="px-6 py-3 capitalize">{product.status}</td>

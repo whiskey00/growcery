@@ -9,13 +9,14 @@ class Product extends Model
 {
     protected $fillable = [
         'vendor_id',
+        'category_id',
         'name',
-        'category',
         'price',
         'status',
         'description',
         'options',
         'quantity',
+        'image',
     ];
 
     protected $casts = [
@@ -33,4 +34,10 @@ class Product extends Model
                     ->withPivot('quantity')
                     ->withTimestamps();
     }
+
+    public function category()
+    {
+        return $this->belongsTo(\App\Models\Category::class);
+    }
+
 }

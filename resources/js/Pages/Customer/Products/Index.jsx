@@ -65,13 +65,13 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                         {products.data.map(product => (
                             <div key={product.id} className="bg-white rounded shadow p-3 hover:shadow-md">
                                 <img
-                                    src="https://placehold.co/300x200?text=Product"
+                                    src={product.image ? `/storage/${product.image}` : 'https://placehold.co/300x200?text=No+Image'} 
                                     alt={product.name}
                                     className="w-full h-36 object-cover rounded mb-2"
                                 />
                                 <h2 className="font-semibold text-sm">{product.name}</h2>
                                 <p className="text-green-600 font-bold text-sm">₱{product.price}</p>
-                                <p className="text-xs text-gray-500">{product.category}</p>
+                                <p className="text-xs text-gray-500">{product.category?.name}</p>
                                 <div className="mt-2 flex gap-2 items-stretch">
                                     <Link
                                         href={`/products/${product.id}`}

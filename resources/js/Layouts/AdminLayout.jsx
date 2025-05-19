@@ -21,6 +21,9 @@ const AdminLayout = ({ children }) => {
                             <Link href="/admin/products" className="text-white hover:bg-gray-700 p-2 rounded block">Products</Link>
                         </li>
                         <li className="mb-4">
+                            <Link href="/admin/categories" className="text-white hover:bg-gray-700 p-2 rounded block">Categories</Link>
+                        </li>
+                        <li className="mb-4">
                             <Link href="/admin/orders" className="text-white hover:bg-gray-700 p-2 rounded block">Orders</Link>
                         </li>
                         <li className="mb-4">

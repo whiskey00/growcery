@@ -2,25 +2,26 @@ import React from 'react';
 import { useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 
-export default function Create({ categories, vendors }) {
+export default function Edit({ product, categories, vendors }) {
   const { data, setData, post, processing, errors } = useForm({
-    vendor_id: '',
-    name: '',
-    category_id: '',
-    price: '',
-    quantity: '',
-    description: '',
-    status: 'draft',
-    options: [{ label: '', price: '' }],
+    _method: 'put',
+    vendor_id: product.vendor_id?.toString() ?? '',
+    name: product.name ?? '',
+    category_id: product.category_id?.toString() ?? '',
+    price: product.price?.toString() ?? '',
+    quantity: product.quantity?.toString() ?? '',
+    description: product.description ?? '',
+    status: product.status ?? 'draft',
+    options: Array.isArray(product.options) ? product.options : [{ label: '', price: '' }],
     image: undefined,
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    post('/admin/products', {
+    post(`/admin/products/${product.id}`, {
       forceFormData: true,
-      onError: (e) => console.error("❌ Create failed:", e),
-      onSuccess: () => console.log("✅ Product created!"),
+      onError: (e) => console.error('❌ Update failed:', e),
+      onSuccess: () => console.log('✅ Product updated!'),
     });
   };
 
@@ -42,31 +43,31 @@ export default function Create({ categories, vendors }) {
 
   return (
     <AdminLayout>
-      <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded-md">
-        <h1 className="text-2xl font-bold mb-6">Add New Product</h1>
+      <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-md">
+        <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
-            {/* Vendor Selection */}
-            <div>
-            <label className="block text-sm font-medium mb-1">Vendor</label>
+          {/* Vendor Dropdown */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
             <select
-                className="w-full border px-4 py-2 rounded"
-                value={data.vendor_id}
-                onChange={(e) => setData('vendor_id', e.target.value)}
+              className="w-full border px-4 py-2 rounded"
+              value={data.vendor_id}
+              onChange={(e) => setData('vendor_id', e.target.value)}
             >
-                <option value="">Select a vendor</option>
-                {vendors.map((vendor) => (
+              <option value="">Select vendor</option>
+              {vendors.map((vendor) => (
                 <option key={vendor.id} value={vendor.id.toString()}>
-                    {vendor.name}
+                  {vendor.name}
                 </option>
-                ))}
+              ))}
             </select>
             {errors.vendor_id && <p className="text-sm text-red-600 mt-1">{errors.vendor_id}</p>}
-            </div>
+          </div>
 
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
             <input
               type="text"
               className="w-full border px-4 py-2 rounded"
@@ -76,15 +77,15 @@ export default function Create({ categories, vendors }) {
             {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
           </div>
 
-          {/* Category */}
+          {/* Category Dropdown */}
           <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select
               className="w-full border px-4 py-2 rounded"
               value={data.category_id}
               onChange={(e) => setData('category_id', e.target.value)}
             >
-              <option value="">Select a category</option>
+              <option value="">Select category</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id.toString()}>
                   {cat.name}
@@ -96,32 +97,39 @@ export default function Create({ categories, vendors }) {
 
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-medium mb-1">Product Image</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+            {product.image && (
+              <img
+                src={`/storage/${product.image}`}
+                alt="Current"
+                className="mb-2 h-24 rounded object-cover"
+              />
+            )}
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setData('image', e.target.files[0])}
               className="w-full p-2 border rounded"
             />
-            {errors.image && <p className="text-sm text-red-600 text-sm mt-1">{errors.image}</p>}
+            {errors.image && <p className="text-red-600 text-sm mt-1">{errors.image}</p>}
           </div>
 
           {/* Price & Quantity */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Price</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
               <input
                 type="number"
-                className="w-full border px-4 py-2 rounded"
+                className="w-full border rounded px-4 py-2"
                 value={data.price}
                 onChange={(e) => setData('price', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Quantity</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
               <input
                 type="number"
-                className="w-full border px-4 py-2 rounded"
+                className="w-full border rounded px-4 py-2"
                 value={data.quantity}
                 onChange={(e) => setData('quantity', e.target.value)}
               />
@@ -130,9 +138,9 @@ export default function Create({ categories, vendors }) {
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
-              className="w-full border px-4 py-2 rounded"
+              className="w-full border rounded px-4 py-2"
               value={data.description}
               onChange={(e) => setData('description', e.target.value)}
             />
@@ -140,9 +148,9 @@ export default function Create({ categories, vendors }) {
 
           {/* Status */}
           <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
-              className="w-full border px-4 py-2 rounded"
+              className="w-full border rounded px-4 py-2"
               value={data.status}
               onChange={(e) => setData('status', e.target.value)}
             >
@@ -154,7 +162,7 @@ export default function Create({ categories, vendors }) {
 
           {/* Options */}
           <div>
-            <label className="block text-sm font-medium mb-2">Options</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
             {data.options.map((option, index) => (
               <div key={index} className="flex items-center gap-2 mb-2">
                 <input
@@ -180,7 +188,11 @@ export default function Create({ categories, vendors }) {
                 </button>
               </div>
             ))}
-            <button type="button" onClick={addOption} className="text-blue-600 text-sm mt-1">
+            <button
+              type="button"
+              onClick={addOption}
+              className="text-blue-600 text-sm mt-1"
+            >
               + Add Option
             </button>
           </div>
@@ -190,9 +202,9 @@ export default function Create({ categories, vendors }) {
             <button
               type="submit"
               disabled={processing}
-              className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
             >
-              Save Product
+              Update Product
             </button>
           </div>
         </form>
