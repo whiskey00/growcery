@@ -1,14 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import debounce from 'lodash/debounce';
 
 export default function Index({ users = [] }) {
     const [search, setSearch] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+
+    // Create a debounced search function
+    const debouncedSearch = debounce((query) => {
+        setIsSearching(true);
+        router.get('/admin/users', { search: query }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            onFinish: () => setIsSearching(false),
+        });
+    }, 300);
 
     const handleSearch = (e) => {
-        setSearch(e.target.value);
-        // TODO: implement server-side search
+        const query = e.target.value;
+        setSearch(query);
+        debouncedSearch(query);
     };
+
+    // Cleanup debounce on unmount
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, []);
 
     const handlePageChange = (url) => {
         if (url) window.location.href = url;
@@ -27,13 +48,23 @@ export default function Index({ users = [] }) {
                     </Link>
                 </div>
 
-                <input 
-                    type="text"
-                    value={search}
-                    onChange={handleSearch}
-                    placeholder="Search users..."
-                    className="p-2 border rounded w-full max-w-sm mb-6"
-                />
+                <div className="relative">
+                    <input 
+                        type="text"
+                        value={search}
+                        onChange={handleSearch}
+                        placeholder="Search users..."
+                        className="p-2 border rounded w-full max-w-sm mb-6"
+                    />
+                    {isSearching && (
+                        <div className="absolute right-3 top-2">
+                            <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    )}
+                </div>
 
                 <div className="overflow-x-auto">
                     <table className="min-w-full bg-white rounded-lg shadow border">

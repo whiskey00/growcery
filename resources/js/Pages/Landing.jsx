@@ -1,10 +1,32 @@
 import React from 'react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Link, router } from '@inertiajs/react';
+import useCart from '@/Stores/useCart';
 
 export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
-    const handleAddToCart = (id) => {
-        alert(`Added product ${id} to cart!`);
+    const { addToCart } = useCart();
+
+    const handleAddToCart = (product) => {
+        if (!isLoggedIn) {
+            router.visit('/login');
+            return;
+        }
+
+        // Add to cart with default option and quantity
+        addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            vendor_id: product.vendor_id,
+            quantity: 1,
+            selectedOption: {
+                label: 'default',
+                price: product.price
+            }
+        });
+
+        alert(`Added ${product.name} to cart!`);
     };
 
     return (
@@ -34,13 +56,13 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
                             <p className="text-green-600 font-bold text-sm mb-2">₱{product.price}</p>
                             <div className="flex gap-2">
                                 <Link
-                                    href={`/products/${product.id}`}
+                                    href={`/customer/products/${product.id}`}
                                     className="flex-1 flex items-center justify-center text-white bg-green-600 py-1 rounded hover:bg-green-700 text-sm"
                                 >
                                     View
                                 </Link>
                                 <button
-                                    onClick={() => handleAddToCart(product.id)}
+                                    onClick={() => handleAddToCart(product)}
                                     className="p-2 bg-yellow-500 rounded hover:bg-yellow-600 flex items-center justify-center"
                                     title="Add to Cart"
                                 >
