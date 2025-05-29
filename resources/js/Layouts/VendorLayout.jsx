@@ -1,7 +1,14 @@
 import React from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 
 const VendorLayout = ({ children }) => {
+    const { post } = useForm();
+    const { actingAs } = usePage().props;
+
+    const handleViewSwitch = () => {
+        post(route('vendor.switch-view'));
+    };
+
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
@@ -26,14 +33,23 @@ const VendorLayout = ({ children }) => {
                     </ul>
                 </div>
 
-                <Link
-                    href="/logout"
-                    method="post"
-                    as="button"
-                    className="text-sm bg-red-600 text-white w-full text-center py-2 rounded hover:bg-red-700 mt-4"
-                >
-                    Logout
-                </Link>
+                <div className="space-y-4">
+                    <button
+                        onClick={handleViewSwitch}
+                        className="text-sm bg-green-600 text-white w-full text-center py-2 rounded hover:bg-green-700"
+                    >
+                        Switch to {actingAs === 'vendor' ? 'Customer' : 'Vendor'} View
+                    </button>
+
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        className="text-sm bg-red-600 text-white w-full text-center py-2 rounded hover:bg-red-700"
+                    >
+                        Logout
+                    </Link>
+                </div>
             </div>
 
             {/* Main Content */}

@@ -13,6 +13,7 @@ use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\CustomerDashboardController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,8 @@ Route::get('/register', function () {
     return app(\App\Http\Controllers\Auth\RegisteredUserController::class)->create(request());
 })->name('register');
 
+Route::post('/login/google', [GoogleAuthController::class, 'handle']);
+
 // Product browsing
 Route::get('/products', [ProductBrowseController::class, 'index'])->name('products.index');
 
@@ -105,7 +108,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('customer.orders.show');
 
-
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile.view');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('customer.profile.edit');
@@ -118,9 +120,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Checkout
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout.index');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+        // Vendor Application
+        Route::get('/vendor-application/create', [App\Http\Controllers\Customer\VendorApplicationController::class, 'create'])
+            ->name('vendor-application.create');
+        Route::post('/vendor-application', [App\Http\Controllers\Customer\VendorApplicationController::class, 'store'])
+            ->name('vendor-application.store');
+        Route::get('/vendor-application/status', [App\Http\Controllers\Customer\VendorApplicationController::class, 'status'])
+            ->name('vendor-application.status');
+        Route::get('/vendor-application/{application}/document', [App\Http\Controllers\Customer\VendorApplicationController::class, 'viewDocument'])
+            ->name('vendor-application.document');
     });
 
+    // Vendor role switch route
+    Route::post('/vendor/switch-view', [App\Http\Controllers\Vendor\RoleSwitchController::class, 'switch'])
+        ->name('vendor.switch-view');
+});
 
+// Admin vendor application routes
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/vendor-applications', [App\Http\Controllers\Admin\VendorApplicationController::class, 'index'])
+        ->name('admin.vendor-applications.index');
+    Route::get('/admin/vendor-applications/{application}', [App\Http\Controllers\Admin\VendorApplicationController::class, 'show'])
+        ->name('admin.vendor-applications.show');
+    Route::post('/admin/vendor-applications/{application}/approve', [App\Http\Controllers\Admin\VendorApplicationController::class, 'approve'])
+        ->name('admin.vendor-applications.approve');
+    Route::post('/admin/vendor-applications/{application}/reject', [App\Http\Controllers\Admin\VendorApplicationController::class, 'reject'])
+        ->name('admin.vendor-applications.reject');
+    Route::get('/admin/vendor-applications/{application}/document', [App\Http\Controllers\Admin\VendorApplicationController::class, 'viewDocument'])
+        ->name('admin.vendor-applications.document');
 });
 
 require __DIR__.'/auth.php';

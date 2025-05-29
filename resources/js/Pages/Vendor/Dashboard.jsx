@@ -42,6 +42,10 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
 
     return (
         <VendorLayout>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+                Dashboard Overview
+            </h2>
+
             <div className="grid gap-6 grid-cols-1 md:grid-cols-3 mb-6">
                 <div className="bg-white shadow rounded p-6 text-center">
                     <h2 className="text-sm text-gray-500">Sales</h2>

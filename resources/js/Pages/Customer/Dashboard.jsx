@@ -3,8 +3,9 @@ import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function Dashboard() {
-    const { auth, recentOrders } = usePage().props;
+    const { auth, recentOrders, vendorApplication } = usePage().props;
     const user = auth?.user;
+    const isActingVendor = user?.role === 'vendor';
 
     const statusMap = {
     All: '',
@@ -22,13 +23,44 @@ export default function Dashboard() {
     return rawStatus; // fallback if no match
     };
 
+    const getVendorApplicationStatusColor = (status) => {
+        switch (status) {
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'approved':
+                return 'bg-green-100 text-green-800 border-green-200';
+            case 'rejected':
+                return 'bg-red-100 text-red-800 border-red-200';
+            default:
+                return 'bg-gray-100 text-gray-800 border-gray-200';
+        }
+    };
 
     return (
         <CustomerLayout>
             <div className="w-full px-6 py-8 bg-white shadow rounded">
-                <h1 className="text-2xl font-bold text-green-700 mb-6">
-                    Welcome back, {user?.name}!
-                </h1>
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold text-green-700">
+                        Welcome back, {user?.name}!
+                    </h1>
+                    {!isActingVendor && (
+                        vendorApplication ? (
+                            <Link
+                                href="/customer/vendor-application/status"
+                                className={`inline-flex items-center px-4 py-2 border rounded-md font-semibold text-xs uppercase tracking-widest transition ${getVendorApplicationStatusColor(vendorApplication.status)}`}
+                            >
+                                Application {vendorApplication.status.charAt(0).toUpperCase() + vendorApplication.status.slice(1)}
+                            </Link>
+                        ) : (
+                            <Link
+                                href="/customer/vendor-application/create"
+                                className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                            >
+                                Become a Vendor
+                            </Link>
+                        )
+                    )}
+                </div>
 
                 <div className="grid gap-6 md:grid-cols-3">
                     {/* Continue Shopping */}
@@ -62,7 +94,7 @@ export default function Dashboard() {
                     </Link>
 
                     {/* View Profile */}
-                    <Link href={route('customer.profile.view')} className="bg-gray-50 border rounded p-5 hover:shadow-md transition">
+                    <Link href="/customer/profile" className="bg-gray-50 border rounded p-5 hover:shadow-md transition">
                         <div className="flex items-center gap-4">
                             <div className="bg-green-100 text-green-700 p-2 rounded">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
