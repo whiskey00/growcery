@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { usePage, Link } from '@inertiajs/react';
+import { usePage, Link, router } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import useCart from '@/Stores/useCart';
 
@@ -30,6 +30,28 @@ export default function Show() {
 
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 5000);
+  };
+
+  const handleDirectCheckout = () => {
+    const selectedOption = product.options.find(opt => opt.label === selectedLabel);
+
+    if (!selectedOption) {
+      alert('Please select an option');
+      return;
+    }
+
+    // Use router.post for direct checkout
+    router.post('/customer/direct-checkout', {
+      product_id: product.id,
+      quantity: quantity,
+      selectedOption: {
+        label: selectedOption.label,
+        price: selectedOption.price
+      }
+    }, {
+      preserveState: true, // Preserve the form state
+      preserveScroll: true, // Preserve the scroll position
+    });
   };
 
   return (
@@ -186,26 +208,27 @@ export default function Show() {
               <div className="pt-6 space-y-3">
                 <button
                   onClick={handleAddToCart}
-                  disabled={!product.quantity || !product.options?.length}
+                  disabled={!product.quantity || !product.options?.length || !selectedLabel}
                   className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {product.quantity ? 'Add to Cart' : 'Out of Stock'}
-                  {product.quantity > 0 && (
+                  {!selectedLabel ? 'Select an Option' : product.quantity ? 'Add to Cart' : 'Out of Stock'}
+                  {product.quantity > 0 && selectedLabel && (
                     <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   )}
                 </button>
 
-                <Link
-                  href="/customer/cart"
-                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                <button
+                  onClick={handleDirectCheckout}
+                  disabled={!product.quantity || !product.options?.length || !selectedLabel}
+                  className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Proceed to Checkout
+                  {!selectedLabel ? 'Select an Option to Checkout' : 'Buy Now'}
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
-                </Link>
+                </button>
               </div>
             </div>
           </div>

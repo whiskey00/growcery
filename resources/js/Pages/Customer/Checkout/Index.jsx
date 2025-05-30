@@ -3,10 +3,13 @@ import { Head, useForm } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 
 export default function Index({ user, cartItems }) {
+    const isDirectCheckout = cartItems.length === 1 && cartItems[0].id === 'temp';
+    
     const { data, setData, post, processing, errors } = useForm({
         shipping_address: user.shipping_address || '',
         mobile_number: user.mobile_number || '',
         payment_method: 'COD',
+        items: cartItems
     });
 
     const calculateTotal = () => {
@@ -17,7 +20,7 @@ export default function Index({ user, cartItems }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/customer/checkout');
+        post(isDirectCheckout ? '/customer/direct-checkout/complete' : '/customer/checkout');
     };
 
     return (

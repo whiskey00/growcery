@@ -111,4 +111,117 @@ class CheckoutController extends Controller
             return back()->withErrors(['error' => 'Checkout failed. ' . $e->getMessage()]);
         }
     }
+
+    public function directCheckout(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+            'selectedOption.label' => 'required|string',
+            'selectedOption.price' => 'required|numeric|min:0',
+        ]);
+
+        $product = Product::with('vendor')->findOrFail($validated['product_id']);
+
+        // Check if product is in stock
+        if ($product->quantity < $validated['quantity']) {
+            return back()->with('error', 'Not enough stock available.');
+        }
+
+        // Check if option exists in product
+        $optionExists = collect($product->options)->contains(function ($option) use ($validated) {
+            return $option['label'] === $validated['selectedOption']['label'] &&
+                   (float) $option['price'] === (float) $validated['selectedOption']['price'];
+        });
+
+        if (!$optionExists) {
+            return back()->with('error', 'Invalid product option.');
+        }
+
+        $user = auth()->user();
+
+        return Inertia::render('Customer/Checkout/Index', [
+            'user' => $user,
+            'cartItems' => [
+                [
+                    'id' => 'temp',
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'image' => $product->image,
+                    'vendor' => $product->vendor,
+                    'quantity' => $validated['quantity'],
+                    'selectedOption' => [
+                        'label' => $validated['selectedOption']['label'],
+                        'price' => $validated['selectedOption']['price'],
+                    ],
+                ]
+            ],
+        ]);
+    }
+
+    public function completeDirectCheckout(Request $request)
+    {
+        $request->validate([
+            'shipping_address' => 'required|string',
+            'mobile_number' => 'required|string',
+            'payment_method' => 'required|string|in:COD,QRPh',
+            'items' => 'required|array|size:1',
+            'items.0.product_id' => 'required|exists:products,id',
+            'items.0.quantity' => 'required|integer|min:1',
+            'items.0.selectedOption.label' => 'required|string',
+            'items.0.selectedOption.price' => 'required|numeric|min:0',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $user = auth()->user();
+            $item = $request->items[0];
+            $product = Product::with('vendor')->findOrFail($item['product_id']);
+
+            // Check stock availability
+            if ($product->quantity < $item['quantity']) {
+                throw new \Exception("Not enough stock for {$product->name}");
+            }
+
+            // Check if option exists in product
+            $optionExists = collect($product->options)->contains(function ($option) use ($item) {
+                return $option['label'] === $item['selectedOption']['label'] &&
+                       (float) $option['price'] === (float) $item['selectedOption']['price'];
+            });
+
+            if (!$optionExists) {
+                throw new \Exception('Invalid product option.');
+            }
+
+            $total = $item['selectedOption']['price'] * $item['quantity'];
+
+            $order = Order::create([
+                'user_id' => $user->id,
+                'vendor_id' => $product->vendor_id,
+                'total_price' => $total,
+                'payment_method' => $request->payment_method,
+                'shipping_address' => $request->shipping_address,
+                'status' => 'to_pay',
+            ]);
+
+            // Attach product to order
+            $order->products()->attach($product->id, [
+                'quantity' => $item['quantity'],
+                'option_label' => $item['selectedOption']['label'],
+                'option_price' => $item['selectedOption']['price'],
+            ]);
+
+            // Update product stock
+            $product->decrement('quantity', $item['quantity']);
+
+            DB::commit();
+
+            return redirect('/customer/orders')->with('success', 'Order placed successfully!');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('❌ Direct checkout failed: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Checkout failed. ' . $e->getMessage()]);
+        }
+    }
 }

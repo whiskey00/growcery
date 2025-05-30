@@ -120,8 +120,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
         Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-        // Checkout
-        Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout.index');
+        // Direct checkout routes
+        Route::post('/direct-checkout', [CheckoutController::class, 'directCheckout'])->name('checkout.direct');
+        Route::post('/direct-checkout/complete', [CheckoutController::class, 'completeDirectCheckout'])->name('checkout.direct.complete');
+        
+        // Regular checkout route
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
         // Vendor Application
