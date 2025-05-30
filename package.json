@@ -28,6 +28,7 @@
         "phil-reg-prov-mun-brgy": "^1.1.0",
         "philippine-location-json-for-geer": "^1.1.11",
         "react-chartjs-2": "^5.3.0",
-        "react-router-dom": "^7.6.0"
+        "react-router-dom": "^7.6.0",
+        "zustand": "^5.0.5"
     }
 }

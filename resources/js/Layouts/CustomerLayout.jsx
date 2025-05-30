@@ -1,98 +1,262 @@
-import React from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
-import { useState } from 'react';
-import useCart from '@/Stores/useCart';
+import React, { useState } from 'react';
+import { Link, usePage } from '@inertiajs/react';
 
 export default function CustomerLayout({ children }) {
-    const { props } = usePage();
-    const isLoggedIn = props?.isLoggedIn;
-    const user = props?.user;
-    const role = props?.role;
+    const { auth, cartItems } = usePage().props;
     const [search, setSearch] = useState('');
-    const { cart } = useCart();
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-    const getDashboardLink = () => {
-        if (role === 'admin') return '/admin';
-        if (role === 'vendor') return '/vendor';
-        if (role === 'customer') return '/customer';
-        return '/dashboard';
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (search.trim()) {
+            window.location.href = `/products?search=${encodeURIComponent(search)}`;
+        }
     };
+
+    const cartItemCount = cartItems?.length || 0;
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             {/* Navbar */}
-            <header className="bg-white shadow p-4 sticky top-0 z-50 flex justify-between items-center">
-                {/* Logo */}
-                <Link href="/" className="flex items-center">
-                    <img src="/images/green.png" alt="Growcery Logo" className="w-32 h-auto" />
-                </Link>
-
-                {/* Centered - Browse + Search */}
-                <div className="flex-1 flex justify-center items-center gap-4 mx-6">
-                    <Link href="/products" className="text-sm font-medium text-gray-700 hover:text-green-700">Browse</Link>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            router.get('/products', { search });
-                        }}
-                        className="flex w-full max-w-xl"
-                    >
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search products..."
-                            className="flex-1 border border-gray-300 px-4 py-2 rounded-l-md focus:outline-none focus:ring focus:border-green-500 text-sm"
-                        />
-                        <button
-                            type="submit"
-                            className="bg-green-600 text-white px-4 rounded-r-md hover:bg-green-700 flex items-center justify-center"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth={1.5}
-                                stroke="currentColor"
-                                className="w-5 h-5"
+            <header className="bg-green-600 sticky top-0 z-50">
+                <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        {/* Mobile menu button */}
+                        <div className="flex items-center md:hidden">
+                            <button
+                                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-green-100 hover:bg-green-700"
                             >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103 10.5a7.5 7.5 0 0013.65 6.15z" />
-                            </svg>
-                        </button>
-                    </form>
-                </div>
+                                <span className="sr-only">{showMobileMenu ? 'Close menu' : 'Open menu'}</span>
+                                {showMobileMenu ? (
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                ) : (
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                )}
+                            </button>
+                        </div>
 
-                {/* Auth buttons */}
-                <div className="flex items-center gap-4 text-sm">
-                    <Link href="/customer/cart" className="relative hover:text-green-600">
-                        Cart
-                        {cart.length > 0 && (
-                            <span className="absolute -top-2 -right-3 bg-green-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                {cart.length}
-                            </span>
-                        )}
-                    </Link>
-                    {isLoggedIn ? (
-                        <>
-                            <Link href={getDashboardLink()} className="text-green-700">Dashboard</Link>
-                            <Link href="/logout" method="post" as="button" className="text-gray-600 hover:underline">Logout</Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/login" className="hover:text-green-600">Login</Link>
-                            <Link href="/register" className="text-green-600 hover:underline">Register</Link>
-                        </>
-                    )}
-                </div>
+                        {/* Logo */}
+                        <div className="flex-shrink-0 flex items-center">
+                            <Link href="/" className="flex items-center">
+                                <img src="/images/white.png" alt="Growcery Logo" className="h-8 w-auto" />
+                            </Link>
+                        </div>
+
+                        {/* Desktop Navigation */}
+                        <div className="hidden md:flex md:items-center md:space-x-4">
+                            <form onSubmit={handleSearch} className="relative w-96">
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search products..."
+                                    className="w-full bg-green-700/50 border border-green-500 text-white placeholder-green-200 text-sm rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent py-2 pl-10 pr-4"
+                                />
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg className="w-5 h-5 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                            </form>
+                            <Link
+                                href="/products"
+                                className="text-white hover:text-green-100 px-3 py-2 text-sm font-medium"
+                            >
+                                Browse Products
+                            </Link>
+                            {auth.user && (
+                                <Link
+                                    href="/customer/dashboard"
+                                    className="text-white hover:text-green-100 px-3 py-2 text-sm font-medium"
+                                >
+                                    Dashboard
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Desktop Right Navigation */}
+                        <div className="hidden md:flex md:items-center md:space-x-4">
+                            {auth.user ? (
+                                <>
+                                    <Link
+                                        href="/customer/cart"
+                                        className="relative text-white hover:text-green-100 p-2 group"
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        {cartItemCount > 0 && (
+                                            <span className="absolute -top-2 -right-2 bg-yellow-400 text-green-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                                {cartItemCount}
+                                            </span>
+                                        )}
+                                    </Link>
+
+                                    {/* Profile Dropdown */}
+                                    <div className="relative group">
+                                        <button className="flex items-center text-white hover:text-green-100">
+                                            <img
+                                                className="h-8 w-8 rounded-full border-2 border-green-500"
+                                                src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=0D9488&color=fff`}
+                                                alt=""
+                                            />
+                                        </button>
+                                        <div className="absolute right-0 w-48 mt-2 py-1 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                            <Link
+                                                href="/customer/profile"
+                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                Your Profile
+                                            </Link>
+                                            {auth.user.role !== 'vendor' && !auth.vendorApplication && (
+                                                <Link
+                                                    href="/customer/vendor-application"
+                                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                >
+                                                    Become a Vendor
+                                                </Link>
+                                            )}
+                                            <Link
+                                                href="/logout"
+                                                method="post"
+                                                as="button"
+                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                Sign out
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex items-center space-x-4">
+                                    <Link
+                                        href="/login"
+                                        className="text-white hover:text-green-100"
+                                    >
+                                        Login
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        className="bg-white text-green-600 hover:bg-green-50 px-4 py-2 rounded-lg text-sm font-medium"
+                                    >
+                                        Register
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Mobile Right Navigation */}
+                        <div className="flex items-center md:hidden">
+                            {auth.user && (
+                                <Link href="/customer/cart" className="relative p-2 text-white hover:text-green-100">
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    {cartItemCount > 0 && (
+                                        <span className="absolute top-0 right-0 bg-yellow-400 text-green-800 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                            {cartItemCount}
+                                        </span>
+                                    )}
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Mobile Menu */}
+                    <div className={`${showMobileMenu ? 'block' : 'hidden'} md:hidden border-t border-green-500 pt-2 pb-3`}>
+                        <div className="space-y-1">
+                            <form onSubmit={handleSearch} className="px-4 pb-2">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        placeholder="Search products..."
+                                        className="w-full bg-green-700/50 border border-green-500 text-white placeholder-green-200 text-sm rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent py-2 pl-10 pr-4"
+                                    />
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg className="w-5 h-5 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </form>
+                            <Link
+                                href="/products"
+                                className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
+                            >
+                                Browse Products
+                            </Link>
+                            {auth.user ? (
+                                <>
+                                    <Link
+                                        href="/customer/dashboard"
+                                        className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                    <Link
+                                        href="/customer/profile"
+                                        className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
+                                    >
+                                        Your Profile
+                                    </Link>
+                                    {auth.user.role !== 'vendor' && !auth.vendorApplication && (
+                                        <Link
+                                            href="/customer/vendor-application"
+                                            className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
+                                        >
+                                            Become a Vendor
+                                        </Link>
+                                    )}
+                                    <Link
+                                        href="/logout"
+                                        method="post"
+                                        as="button"
+                                        className="block w-full text-left px-4 py-2 text-base font-medium text-white hover:bg-green-700"
+                                    >
+                                        Sign out
+                                    </Link>
+                                </>
+                            ) : (
+                                <>
+                                    <Link
+                                        href="/login"
+                                        className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
+                                    >
+                                        Login
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
+                                    >
+                                        Register
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </nav>
             </header>
 
             {/* Content */}
-            <main className="flex-grow p-6">
+            <main className="flex-grow">
                 {children}
             </main>
 
-            <footer className="bg-white border-t text-center text-sm text-gray-500 py-4">
-                &copy; {new Date().getFullYear()} Growcery. All rights reserved.
+            {/* Footer */}
+            <footer className="bg-white border-t py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center text-sm text-gray-500">
+                        <p>&copy; {new Date().getFullYear()} Growcery. All rights reserved.</p>
+                        <p className="mt-2">Fresh produce from trusted local farmers.</p>
+                    </div>
+                </div>
             </footer>
         </div>
     );

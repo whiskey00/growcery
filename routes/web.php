@@ -115,7 +115,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Products & Cart
         Route::get('/products/{id}', [\App\Http\Controllers\Customer\ProductController::class, 'show'])->name('customer.products.show');
-        Route::get('/cart', [CartController::class, 'index'])->name('customer.cart');
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
+        Route::patch('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
 
         // Checkout
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout.index');

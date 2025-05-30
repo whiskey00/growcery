@@ -1,44 +1,65 @@
-import { useState, useEffect } from 'react';
+import { router } from '@inertiajs/react';
+import axios from 'axios';
+import { create } from 'zustand';
 
-export default function useCart() {
-  const [cart, setCart] = useState(() => {
-    try {
-      const saved = localStorage.getItem('cart');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+const useCart = create((set, get) => ({
+    items: [],
+    isLoading: false,
 
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+    setItems: (items) => set({ items }),
 
-  const addToCart = (item) => {
-    setCart((prev) => {
-      const existing = prev.find(
-        (i) => i.id === item.id && i.selectedOption.label === item.selectedOption.label
-      );
+    addToCart: async (item) => {
+        set({ isLoading: true });
+        try {
+            // Check if the item already exists in the cart with the same option
+            const response = await axios.post('/customer/cart', {
+                product_id: item.id,
+                quantity: item.quantity,
+                selectedOption: item.selectedOption,
+                update_existing: true, // Add this flag to indicate we want to update existing items
+            });
 
-      if (existing) {
-        return prev.map((i) =>
-          i === existing ? { ...i, quantity: i.quantity + item.quantity } : i
-        );
-      } else {
-        return [...prev, item];
-      }
-    });
-  };
+            // Refresh the page props
+            router.reload({ only: ['cartItems'] });
+        } catch (error) {
+            console.error('Failed to add item to cart:', error);
+            alert(error.response?.data?.message || 'Failed to add item to cart');
+        } finally {
+            set({ isLoading: false });
+        }
+    },
 
-  const removeFromCart = (id, label) => {
-    setCart((prev) => prev.filter((i) => !(i.id === id && i.selectedOption.label === label)));
-  };
+    updateQuantity: async (cartItemId, quantity) => {
+        set({ isLoading: true });
+        try {
+            await axios.patch(`/customer/cart/${cartItemId}`, {
+                quantity,
+            });
 
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem('cart');
-};
+            // Refresh the page props
+            router.reload({ only: ['cartItems'] });
+        } catch (error) {
+            console.error('Failed to update cart item:', error);
+            alert(error.response?.data?.message || 'Failed to update cart item');
+        } finally {
+            set({ isLoading: false });
+        }
+    },
 
+    removeFromCart: async (cartItemId) => {
+        set({ isLoading: true });
+        try {
+            await axios.delete(`/customer/cart/${cartItemId}`);
 
-  return { cart, addToCart, removeFromCart, clearCart };
-}
+            // Refresh the page props
+            router.reload({ only: ['cartItems'] });
+        } catch (error) {
+            console.error('Failed to remove item from cart:', error);
+            alert(error.response?.data?.message || 'Failed to remove item from cart');
+        } finally {
+            set({ isLoading: false });
+        }
+    },
+}));
+
+export default useCart;

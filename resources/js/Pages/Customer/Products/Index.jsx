@@ -1,121 +1,181 @@
-import React from "react";
+import React, { useState } from "react";
 import { usePage, Link, router } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
+import useCart from '@/Stores/useCart';
 
 export default function ProductBrowse({ products, categories, activeSearch, activeCategory }) {
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const { addToCart } = useCart();
+
     const handleSearch = (e) => {
         router.get('/products', { search: e.target.value, category: activeCategory }, { preserveState: true });
     };
 
     const handleCategoryClick = (category) => {
         router.get('/products', { search: activeSearch, category }, { preserveState: true });
+        setShowMobileFilters(false);
     };
 
-    const handleAddToCart = (productId) => {
-        alert(`Added product ${productId} to cart!`);
+    const handleAddToCart = (product) => {
+        addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            vendor_id: product.vendor_id,
+            quantity: 1,
+            selectedOption: {
+                label: 'default',
+                price: product.price
+            }
+        });
+        alert(`Added ${product.name} to cart!`);
     };
 
     return (
         <CustomerLayout>
-            <div className="flex gap-6">
-                {/* Sidebar */}
-                <aside className="w-64 hidden md:block">
-                    <div className="bg-white rounded shadow p-4">
-                        <h2 className="font-bold text-lg mb-2">Categories</h2>
-                        <ul className="space-y-2">
-                            {categories.map((cat) => (
-                                <li key={cat}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Mobile Filter Button */}
+                <div className="md:hidden mb-4">
+                    <button
+                        onClick={() => setShowMobileFilters(!showMobileFilters)}
+                        className="w-full flex items-center justify-center gap-2 bg-white border rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
+                    </button>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-6">
+                    {/* Sidebar */}
+                    <aside className={`${showMobileFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
+                        <div className="bg-white rounded-lg shadow-sm p-4">
+                            <h2 className="font-bold text-lg mb-4">Categories</h2>
+                            <div className="space-y-2">
+                                <button
+                                    onClick={() => handleCategoryClick('')}
+                                    className={`w-full text-left px-3 py-2 rounded-md text-sm ${!activeCategory ? 'bg-green-600 text-white' : 'hover:bg-gray-50'}`}
+                                >
+                                    All Categories
+                                </button>
+                                {categories.map((cat) => (
                                     <button
+                                        key={cat}
                                         onClick={() => handleCategoryClick(cat)}
-                                        className={`w-full text-left px-3 py-1 rounded text-sm ${activeCategory === cat ? 'bg-green-600 text-white' : 'hover:bg-gray-100'}`}
+                                        className={`w-full text-left px-3 py-2 rounded-md text-sm ${activeCategory === cat ? 'bg-green-600 text-white' : 'hover:bg-gray-50'}`}
                                     >
                                         {cat}
                                     </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </aside>
-
-                {/* Main content */}
-                <div className="flex-1">
-                    {/* Search Bar */}
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-xl font-bold text-green-700">All Products</h1>
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            defaultValue={activeSearch}
-                            onChange={handleSearch}
-                            className="p-2 border rounded w-full max-w-sm"
-                        />
-                    </div>
-
-                    {/* Filter tag */}
-                    {(activeSearch || activeCategory) && (
-                        <div className="mb-4 text-sm text-gray-600">
-                            Showing results for:
-                            {activeSearch && <span className="ml-2 font-medium">"{activeSearch}"</span>}
-                            {activeCategory && <span className="ml-2 italic">in {activeCategory}</span>}
+                                ))}
+                            </div>
                         </div>
-                    )}
+                    </aside>
 
-                    {/* Product Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {products.data.map(product => (
-                            <div key={product.id} className="bg-white rounded shadow p-3 hover:shadow-md">
-                                <img
-                                    src={product.image ? `/storage/${product.image}` : 'https://placehold.co/300x200?text=No+Image'} 
-                                    alt={product.name}
-                                    className="w-full h-36 object-cover rounded mb-2"
-                                />
-                                <h2 className="font-semibold text-sm">{product.name}</h2>
-                                <p className="text-green-600 font-bold text-sm">₱{product.price}</p>
-                                <p className="text-xs text-gray-500">{product.category?.name}</p>
-                                <div className="mt-2 flex gap-2 items-stretch">
-                                    <Link
-                                        href={`/customer/products/${product.id}`}
-                                        className="flex-1 text-center text-sm text-white bg-green-600 py-2 rounded hover:bg-green-700"
-                                    >
-                                        View
-                                    </Link>
-                                    <button
-                                        onClick={() => handleAddToCart(product.id)}
-                                        className="p-2 bg-yellow-500 rounded hover:bg-yellow-600 flex items-center justify-center"
-                                        title="Add to Cart"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            stroke="currentColor"
-                                            className="w-5 h-5 text-white"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.837l.383 1.436m0 0L6.75 14.25a1.125 1.125 0 001.09.855h9.21a1.125 1.125 0 001.09-.855l1.386-6.36a.75.75 0 00-.728-.885H6.272m-.166 0L5.25 5.25m0 0H3m3.75 13.5a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm10.5 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                    {/* Main Content */}
+                    <div className="flex-1">
+                        {/* Search and Header */}
+                        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <h1 className="text-xl font-bold text-gray-900">All Products</h1>
+                                <div className="relative flex-1 sm:max-w-xs">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
-                                    </button>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search products..."
+                                        defaultValue={activeSearch}
+                                        onChange={handleSearch}
+                                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                                    />
                                 </div>
                             </div>
-                        ))}
-                    </div>
 
-                    {/* Pagination */}
-                    {products.links?.length > 3 && (
-                        <div className="mt-6 flex justify-center gap-2 flex-wrap">
-                            {products.links.map((link, i) => (
-                                <button
-                                    key={i}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                    disabled={!link.url}
-                                    onClick={() => router.get(link.url)}
-                                    className={`px-3 py-1 border rounded text-sm ${
-                                        link.active ? 'bg-green-600 text-white' : 'bg-white hover:bg-gray-100'
-                                    }`}
-                                />
+                            {/* Active Filters */}
+                            {(activeSearch || activeCategory) && (
+                                <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                                    <span>Filters:</span>
+                                    {activeSearch && (
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Search: {activeSearch}
+                                        </span>
+                                    )}
+                                    {activeCategory && (
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Category: {activeCategory}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Product Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                            {products.data.map(product => (
+                                <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+                                    <div className="relative pb-[75%]">
+                                        <img
+                                            src={product.image ? `/storage/${product.image}` : 'https://placehold.co/300x200?text=No+Image'} 
+                                            alt={product.name}
+                                            className="absolute inset-0 w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="p-4">
+                                        <h2 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-2 mb-1">{product.name}</h2>
+                                        <p className="text-xs sm:text-sm text-gray-500 mb-2">{product.category?.name}</p>
+                                        <p className="text-green-600 font-bold text-sm sm:text-base mb-3">₱{Number(product.price).toLocaleString()}</p>
+                                        <div className="flex gap-2">
+                                            <Link
+                                                href={`/customer/products/${product.id}`}
+                                                className="flex-1 flex items-center justify-center text-white bg-green-600 py-2 rounded-md hover:bg-green-700 text-sm transition-colors duration-200"
+                                            >
+                                                View Details
+                                            </Link>
+                                            <button
+                                                onClick={() => handleAddToCart(product)}
+                                                className="p-2 bg-yellow-500 rounded-md hover:bg-yellow-600 flex items-center justify-center transition-colors duration-200"
+                                                title="Add to Cart"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    strokeWidth={1.5}
+                                                    stroke="currentColor"
+                                                    className="w-5 h-5 text-white"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.837l.383 1.436m0 0L6.75 14.25a1.125 1.125 0 001.09.855h9.21a1.125 1.125 0 001.09-.855l1.386-6.36a.75.75 0 00-.728-.885H6.272m-.166 0L5.25 5.25m0 0H3m3.75 13.5a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm10.5 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
                         </div>
-                    )}
+
+                        {/* Pagination */}
+                        {products.links?.length > 3 && (
+                            <div className="mt-8 flex justify-center gap-2">
+                                {products.links.map((link, i) => (
+                                    <button
+                                        key={i}
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                        disabled={!link.url}
+                                        onClick={() => router.get(link.url)}
+                                        className={`px-3 py-2 border rounded-md text-sm ${
+                                            link.active
+                                                ? 'bg-green-600 text-white border-green-600'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </CustomerLayout>
