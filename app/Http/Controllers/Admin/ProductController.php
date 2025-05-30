@@ -11,9 +11,22 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['vendor', 'category'])->latest()->paginate(10);
+        $query = Product::with(['vendor', 'category']);
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('vendor', function($q) use ($request) {
+                      $q->where('name', 'like', '%' . $request->search . '%');
+                  })
+                  ->orWhereHas('category', function($q) use ($request) {
+                      $q->where('name', 'like', '%' . $request->search . '%');
+                  });
+        }
+
+        $products = $query->latest()->paginate(10)->withQueryString();
+        
         return Inertia::render('Admin/Products/Index', [
             'products' => $products
         ]);

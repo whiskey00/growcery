@@ -12,7 +12,6 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
             return;
         }
 
-        // Add to cart with default option and quantity
         addToCart({
             id: product.id,
             name: product.name,

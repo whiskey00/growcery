@@ -8,12 +8,12 @@ export default function Dashboard() {
     const isActingVendor = user?.role === 'vendor';
 
     const statusMap = {
-    All: '',
-    'To Pay': 'To Pay',
-    'To Ship': 'to_ship',
-    'To Receive': 'to_receive',
-    Completed: 'completed',
-    Cancelled: 'cancelled'
+        All: '',
+        'To Pay': 'to_pay',
+        'To Ship': 'to_ship',
+        'To Receive': 'to_receive',
+        Completed: 'completed',
+        Cancelled: 'cancelled'
     };
 
     const getStatusLabel = (rawStatus) => {

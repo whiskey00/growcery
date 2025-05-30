@@ -86,4 +86,18 @@ class VendorApplicationController extends Controller
             Storage::disk('private')->path($application->id_document)
         );
     }
+
+    public function destroy(VendorApplication $application)
+    {
+        // Delete the ID document file
+        if (Storage::disk('private')->exists($application->id_document)) {
+            Storage::disk('private')->delete($application->id_document);
+        }
+
+        // Delete the application
+        $application->delete();
+
+        return redirect()->route('admin.vendor-applications.index')
+            ->with('success', 'Vendor application deleted successfully.');
+    }
 } 

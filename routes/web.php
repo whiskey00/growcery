@@ -147,6 +147,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->name('admin.vendor-applications.approve');
     Route::post('/admin/vendor-applications/{application}/reject', [App\Http\Controllers\Admin\VendorApplicationController::class, 'reject'])
         ->name('admin.vendor-applications.reject');
+    Route::delete('/admin/vendor-applications/{application}', [App\Http\Controllers\Admin\VendorApplicationController::class, 'destroy'])
+        ->name('admin.vendor-applications.destroy');
     Route::get('/admin/vendor-applications/{application}/document', [App\Http\Controllers\Admin\VendorApplicationController::class, 'viewDocument'])
         ->name('admin.vendor-applications.document');
 });

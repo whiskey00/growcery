@@ -7,7 +7,7 @@ export default function Orders() {
 
   const statusMap = {
     All: 'all',
-    'To Pay': 'To Pay',
+    'To Pay': 'to_pay',
     'To Ship': 'to_ship',
     'To Receive': 'to_receive',
     Completed: 'completed',
@@ -22,6 +22,10 @@ export default function Orders() {
   };
 
   const formatStatus = (status) => {
+    // If it's already in display format (e.g., "To Pay"), return as is
+    if (status.includes(' ')) return status;
+    
+    // Convert from database format (e.g., "to_pay") to display format
     return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   };
 

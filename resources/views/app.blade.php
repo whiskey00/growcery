@@ -3,8 +3,14 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Growcery - Your local farmers marketplace">
+        <meta name="theme-color" content="#16a34a">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'Growcery') }}</title>
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="/images/favicon.png">
+        <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

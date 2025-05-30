@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 
 export default function Status({ auth, application }) {
@@ -96,6 +96,20 @@ export default function Status({ auth, application }) {
                                             </div>
                                         </dl>
                                     </div>
+
+                                    {application.status === 'rejected' && (
+                                        <div className="mt-6 border-t pt-6">
+                                            <p className="text-sm text-gray-600 mb-4">
+                                                Your application was rejected. You can submit a new application addressing the reasons for rejection.
+                                            </p>
+                                            <Link
+                                                href="/customer/vendor-application/create"
+                                                className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                            >
+                                                Submit New Application
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="text-center py-12">

@@ -48,7 +48,7 @@ class CheckoutController extends Controller
                     'total_price' => $total,
                     'payment_method' => $request->payment_method,
                     'shipping_address' => $request->shipping_address,
-                    'status' => 'To Pay',
+                    'status' => 'to_pay',
                 ]);
 
                 foreach ($items as $item) {

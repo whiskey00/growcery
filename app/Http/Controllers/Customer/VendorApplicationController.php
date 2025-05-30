@@ -13,7 +13,7 @@ class VendorApplicationController extends Controller
 {
     public function create()
     {
-        // Check if user already has a pending application
+        // Check if user already has a pending or approved application
         $existingApplication = VendorApplication::where('user_id', auth()->id())
             ->whereIn('status', ['pending', 'approved'])
             ->first();
