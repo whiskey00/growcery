@@ -67,6 +67,7 @@ class CheckoutController extends Controller
                 return $item->product->vendor_id;
             });
 
+            $orders = [];
             foreach ($grouped as $vendorId => $items) {
                 $total = $items->sum(function ($item) {
                     return $item->option_price * $item->quantity;
@@ -100,9 +101,18 @@ class CheckoutController extends Controller
 
                 // Delete cart items for this vendor
                 $items->each->delete();
+                $orders[] = $order;
             }
 
             DB::commit();
+
+            // If it's a QR Ph payment, return the order data instead of redirecting
+            if ($request->payment_method === 'QRPh') {
+                return response()->json([
+                    'success' => true,
+                    'order' => $orders[0]
+                ]);
+            }
 
             return redirect('/customer/orders')->with('success', 'Order placed successfully!');
         } catch (\Throwable $e) {
@@ -216,6 +226,14 @@ class CheckoutController extends Controller
             $product->decrement('quantity', $item['quantity']);
 
             DB::commit();
+
+            // If it's a QR Ph payment, return the order data instead of redirecting
+            if ($request->payment_method === 'QRPh') {
+                return response()->json([
+                    'success' => true,
+                    'order' => $order
+                ]);
+            }
 
             return redirect('/customer/orders')->with('success', 'Order placed successfully!');
         } catch (\Throwable $e) {

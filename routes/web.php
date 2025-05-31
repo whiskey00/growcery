@@ -14,6 +14,7 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\CustomerDashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Customer\QRPhPaymentController;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -137,6 +138,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('vendor-application.status');
         Route::get('/vendor-application/{application}/document', [App\Http\Controllers\Customer\VendorApplicationController::class, 'viewDocument'])
             ->name('vendor-application.document');
+
+        // QR Ph Payment Routes
+        Route::post('/qrph/generate', [QRPhPaymentController::class, 'generateQR']);
+        Route::post('/qrph/simulate-payment', [QRPhPaymentController::class, 'simulatePayment']);
     });
 
     // Vendor role switch route
