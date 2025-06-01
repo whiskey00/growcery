@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { usePage, Link, router } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import useCart from '@/Stores/useCart';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductBrowse({ products, categories, activeSearch, activeCategory }) {
     const [showMobileFilters, setShowMobileFilters] = useState(false);
     const { addToCart } = useCart();
+    const { t } = useTranslation();
 
     const handleSearch = (e) => {
         router.get('/products', { search: e.target.value, category: activeCategory }, { preserveState: true });
@@ -29,7 +31,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                 price: product.price
             }
         });
-        alert(`Added ${product.name} to cart!`);
+        alert(t('product.addedToCart', { name: product.name }));
     };
 
     return (
@@ -44,7 +46,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                         </svg>
-                        {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
+                        {showMobileFilters ? t('common.hideFilters') : t('common.showFilters')}
                     </button>
                 </div>
 
@@ -52,13 +54,13 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                     {/* Sidebar */}
                     <aside className={`${showMobileFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
                         <div className="bg-white rounded-lg shadow-sm p-4">
-                            <h2 className="font-bold text-lg mb-4">Categories</h2>
+                            <h2 className="font-bold text-lg mb-4">{t('product.categories')}</h2>
                             <div className="space-y-2">
                                 <button
                                     onClick={() => handleCategoryClick('')}
                                     className={`w-full text-left px-3 py-2 rounded-md text-sm ${!activeCategory ? 'bg-green-600 text-white' : 'hover:bg-gray-50'}`}
                                 >
-                                    All Categories
+                                    {t('product.allCategories')}
                                 </button>
                                 {categories.map((cat) => (
                                     <button
@@ -78,7 +80,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                         {/* Search and Header */}
                         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <h1 className="text-xl font-bold text-gray-900">All Products</h1>
+                                <h1 className="text-xl font-bold text-gray-900">{t('product.allProducts')}</h1>
                                 <div className="relative flex-1 sm:max-w-xs">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +89,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Search products..."
+                                        placeholder={t('product.searchPlaceholder')}
                                         defaultValue={activeSearch}
                                         onChange={handleSearch}
                                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
@@ -98,15 +100,15 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                             {/* Active Filters */}
                             {(activeSearch || activeCategory) && (
                                 <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                                    <span>Filters:</span>
+                                    <span>{t('common.filters')}:</span>
                                     {activeSearch && (
                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Search: {activeSearch}
+                                            {t('product.searchFilter')}: {activeSearch}
                                         </span>
                                     )}
                                     {activeCategory && (
                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Category: {activeCategory}
+                                            {t('product.categoryFilter')}: {activeCategory}
                                         </span>
                                     )}
                                 </div>
@@ -146,12 +148,12 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                                 href={`/customer/products/${product.id}`}
                                                 className="flex-1 flex items-center justify-center text-white bg-green-600 py-2 rounded-md hover:bg-green-700 text-sm transition-colors duration-200"
                                             >
-                                                View Details
+                                                {t('product.viewDetails')}
                                             </Link>
                                             <button
                                                 onClick={() => handleAddToCart(product)}
                                                 className="p-2 bg-yellow-500 rounded-md hover:bg-yellow-600 flex items-center justify-center transition-colors duration-200"
-                                                title="Add to Cart"
+                                                title={t('product.addToCart')}
                                             >
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"

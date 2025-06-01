@@ -1,6 +1,7 @@
 import React from 'react';
 import VendorLayout from '@/Layouts/VendorLayout';
 import { Link } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -15,6 +16,7 @@ import { Doughnut, Bar } from 'react-chartjs-2';
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function Dashboard({ totalSales, totalOrders, bestSelling, monthlyEarnings, topSelling, recentOrders, averageRating = 4.5, ratingDistribution = {1: 2, 2: 5, 3: 10, 4: 25, 5: 40}, recentReviews = [] }) {
+    const { t } = useTranslation();
     const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const earningsData = monthLabels.map((_, i) => monthlyEarnings[i + 1] || 0);
 
@@ -22,7 +24,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
         labels: monthLabels,
         datasets: [
             {
-                label: 'Earnings (₱)',
+                label: t('vendor.dashboard.monthlyEarnings'),
                 data: earningsData,
                 backgroundColor: 'rgba(22, 163, 74, 0.6)',
                 borderRadius: 6,
@@ -70,9 +72,9 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
             <div className="space-y-4 sm:space-y-6">
                 {/* Header */}
                 <div className="px-2 sm:px-0">
-                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Dashboard</h1>
+                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{t('vendor.dashboard.title')}</h1>
                     <p className="mt-2 text-sm text-gray-700">
-                        Overview of your store's performance
+                        {t('vendor.dashboard.overview')}
                     </p>
                 </div>
 
@@ -87,7 +89,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                                 </svg>
                             </div>
                             <div className="sm:ml-4">
-                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">Total Sales</h2>
+                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">{t('vendor.dashboard.totalSales')}</h2>
                                 <p className="text-lg sm:text-2xl font-semibold text-gray-900">₱{Number(totalSales).toLocaleString()}</p>
                             </div>
                         </div>
@@ -102,12 +104,12 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                                 </svg>
                             </div>
                             <div className="sm:ml-4">
-                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">Total Orders</h2>
+                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">{t('vendor.dashboard.totalOrders')}</h2>
                                 <p className="text-lg sm:text-2xl font-semibold text-gray-900">{totalOrders}</p>
                             </div>
                         </div>
                         <div className="mt-3 sm:mt-4">
-                            <Link href="/vendor/orders" className="text-xs sm:text-sm text-blue-600 hover:text-blue-800">View all orders →</Link>
+                            <Link href="/vendor/orders" className="text-xs sm:text-sm text-blue-600 hover:text-blue-800">{t('vendor.dashboard.viewAllOrders')} →</Link>
                         </div>
                     </div>
 
@@ -120,7 +122,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                                 </svg>
                             </div>
                             <div className="sm:ml-4">
-                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">Best Seller</h2>
+                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">{t('vendor.dashboard.bestSelling')}</h2>
                                 <p className="text-lg sm:text-2xl font-semibold text-gray-900">{bestSelling}</p>
                             </div>
                         </div>
@@ -135,7 +137,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                                 </svg>
                             </div>
                             <div className="sm:ml-4">
-                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">Average Rating</h2>
+                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">{t('vendor.dashboard.averageRating')}</h2>
                                 <p className="text-lg sm:text-2xl font-semibold text-gray-900">{averageRating.toFixed(1)} ★</p>
                             </div>
                         </div>
@@ -143,19 +145,19 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
 
                     {/* Quick Actions */}
                     <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-                        <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-3 sm:mb-4">Quick Actions</h3>
+                        <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-3 sm:mb-4">{t('vendor.dashboard.quickActions')}</h3>
                         <div className="space-y-2 sm:space-y-3">
                             <Link href="/vendor/products/create" className="flex items-center text-xs sm:text-sm text-green-600 hover:text-green-700">
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
-                                Add New Product
+                                {t('vendor.dashboard.addNewProduct')}
                             </Link>
                             <Link href="/vendor/orders" className="flex items-center text-xs sm:text-sm text-green-600 hover:text-green-700">
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
-                                View Orders
+                                {t('vendor.dashboard.viewOrders')}
                             </Link>
                         </div>
                     </div>
@@ -165,7 +167,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                 <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
                     {/* Top Selling Products */}
                     <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-                        <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">Top Selling Products</h2>
+                        <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">{t('vendor.dashboard.topSellingProducts')}</h2>
                         <div className="h-[250px] sm:h-[300px]">
                             <Doughnut 
                                 data={pieData}
@@ -191,7 +193,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
 
                     {/* Monthly Earnings */}
                     <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-                        <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">Monthly Earnings</h2>
+                        <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">{t('vendor.dashboard.monthlyEarnings')}</h2>
                         <div className="h-[250px] sm:h-[300px]">
                             <Bar 
                                 data={barData} 
@@ -227,7 +229,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
 
                     {/* Rating Distribution */}
                     <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-                        <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">Rating Distribution</h2>
+                        <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">{t('vendor.dashboard.ratingDistribution')}</h2>
                         <div className="h-[250px] sm:h-[300px]">
                             <Bar 
                                 data={ratingData} 
@@ -266,9 +268,9 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                     <div className="p-4 sm:p-6 border-b">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-base sm:text-lg font-medium text-gray-900">Recent Reviews</h2>
+                            <h2 className="text-base sm:text-lg font-medium text-gray-900">{t('vendor.dashboard.recentReviews')}</h2>
                             <Link href="/vendor/reviews" className="text-xs sm:text-sm text-green-600 hover:text-green-700">
-                                View all
+                                {t('vendor.dashboard.viewAllReviews')}
                             </Link>
                         </div>
                     </div>
@@ -307,7 +309,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                                                     href={`/vendor/products/${review.product_id}`}
                                                     className="text-xs text-green-600 hover:text-green-700"
                                                 >
-                                                    View Product →
+                                                    {t('vendor.dashboard.viewProduct')} →
                                                 </Link>
                                             </div>
                                         </div>
@@ -316,7 +318,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                             ))
                         ) : (
                             <div className="p-4 sm:p-6 text-center text-gray-500">
-                                No reviews yet
+                                {t('vendor.dashboard.noReviewsYet')}
                             </div>
                         )}
                     </div>
@@ -326,9 +328,9 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                     <div className="p-4 sm:p-6 border-b">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-base sm:text-lg font-medium text-gray-900">Recent Orders</h2>
+                            <h2 className="text-base sm:text-lg font-medium text-gray-900">{t('vendor.dashboard.recentOrders')}</h2>
                             <Link href="/vendor/orders" className="text-xs sm:text-sm text-green-600 hover:text-green-700">
-                                View all
+                                {t('vendor.dashboard.viewAllOrders')}
                             </Link>
                         </div>
                     </div>
@@ -338,16 +340,16 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                                 <thead>
                                     <tr>
                                         <th scope="col" className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Product
+                                            {t('vendor.orders.product')}
                                         </th>
                                         <th scope="col" className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Price
+                                            {t('vendor.orders.price')}
                                         </th>
                                         <th scope="col" className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
+                                            {t('vendor.orders.status')}
                                         </th>
                                         <th scope="col" className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Date
+                                            {t('vendor.orders.date')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -382,7 +384,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                                     ) : (
                                         <tr>
                                             <td colSpan="4" className="px-3 sm:px-6 py-2 sm:py-4 text-center text-xs sm:text-sm text-gray-500">
-                                                No recent orders found
+                                                {t('vendor.orders.noOrdersFound')}
                                             </td>
                                         </tr>
                                     )}

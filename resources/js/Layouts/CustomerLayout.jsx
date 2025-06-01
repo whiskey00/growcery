@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 
 export default function CustomerLayout({ children }) {
     const { auth, cartItems } = usePage().props;
@@ -82,6 +83,9 @@ export default function CustomerLayout({ children }) {
 
                         {/* Desktop Right Navigation */}
                         <div className="hidden md:flex md:items-center md:space-x-4">
+                            {/* Language Switcher */}
+                            <LanguageSwitcher />
+                            
                             {auth.user ? (
                                 <>
                                     <Link

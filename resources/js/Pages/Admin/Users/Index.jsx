@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import debounce from 'lodash/debounce';
+import { useTranslation } from 'react-i18next';
 
 export default function Index({ users = [] }) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
@@ -59,9 +61,9 @@ export default function Index({ users = [] }) {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Users</h1>
+                        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{t('admin.users')}</h1>
                         <p className="mt-1 sm:mt-2 text-sm text-gray-700">
-                            Manage user accounts and permissions
+                            {t('admin.manageUsers')}
                         </p>
                     </div>
                     <div className="mt-4 sm:mt-0">
@@ -72,14 +74,14 @@ export default function Index({ users = [] }) {
                             <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
-                            Add User
+                            {t('admin.addUser')}
                         </Link>
                     </div>
                 </div>
 
                 {/* Search */}
                 <div className="w-full sm:max-w-lg lg:max-w-xs">
-                    <label htmlFor="search" className="sr-only">Search users</label>
+                    <label htmlFor="search" className="sr-only">{t('admin.search')}</label>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,7 +95,7 @@ export default function Index({ users = [] }) {
                             value={search}
                             onChange={handleSearch}
                             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                            placeholder="Search users"
+                            placeholder={t('admin.search')}
                         />
                         {isSearching && (
                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -137,24 +139,24 @@ export default function Index({ users = [] }) {
                                                 href={`/admin/users/${user.id}/edit`}
                                                 className="text-sm text-green-600 hover:text-green-900"
                                             >
-                                                Edit
+                                                {t('admin.edit')}
                                             </Link>
                                             <button
                                                 onClick={() => {
-                                                    if (confirm(`Delete ${user.name}?`)) {
+                                                    if (confirm(t('admin.confirmDelete', { name: user.name }))) {
                                                         router.delete(`/admin/users/${user.id}`);
                                                     }
                                                 }}
                                                 className="text-sm text-red-600 hover:text-red-900"
                                             >
-                                                Delete
+                                                {t('admin.delete')}
                                             </button>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="p-4 text-center text-gray-500">
-                                    No users found
+                                    {t('admin.noUsersFound')}
                                 </div>
                             )}
                         </div>
@@ -165,13 +167,13 @@ export default function Index({ users = [] }) {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            User
+                                            {t('admin.user')}
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Role
+                                            {t('admin.role')}
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
+                                            {t('admin.actions')}
                                         </th>
                                     </tr>
                                 </thead>
@@ -199,22 +201,22 @@ export default function Index({ users = [] }) {
                                                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <Link
                                                         href={`/admin/users/${user.id}/edit`}
-                                                        className="text-green-600 hover:text-green-900"
+                                                        className="text-green-600 hover:text-green-900 mr-4"
                                                     >
-                                                        Edit
+                                                        {t('admin.edit')}
                                                     </Link>
                                                     <button
                                                         onClick={() => {
-                                                            if (confirm(`Delete ${user.name}?`)) {
+                                                            if (confirm(t('admin.confirmDelete', { name: user.name }))) {
                                                                 router.delete(`/admin/users/${user.id}`);
                                                             }
                                                         }}
                                                         className="text-red-600 hover:text-red-900"
                                                     >
-                                                        Delete
+                                                        {t('admin.delete')}
                                                     </button>
                                                 </td>
                                             </tr>
@@ -222,7 +224,7 @@ export default function Index({ users = [] }) {
                                     ) : (
                                         <tr>
                                             <td colSpan="3" className="px-6 py-4 text-center text-gray-500">
-                                                No users found
+                                                {t('admin.noUsersFound')}
                                             </td>
                                         </tr>
                                     )}

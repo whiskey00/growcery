@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import VendorLayout from '@/Layouts/VendorLayout';
 import { Link, useForm } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 
 export default function Show({ order }) {
+  const { t } = useTranslation();
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
   const { data, setData, patch, processing } = useForm({
     status: order.status
@@ -48,7 +50,7 @@ export default function Show({ order }) {
       <div className="max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded shadow">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <h1 className="text-xl sm:text-2xl font-bold">
-            Order #{String(order.id).padStart(5, '0')}
+            {t('vendor.orders.orderNumber')}{String(order.id).padStart(5, '0')}
           </h1>
           <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mt-2 sm:mt-0 ${getStatusColor(order.status)}`}>
             {order.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -57,17 +59,17 @@ export default function Show({ order }) {
 
         <div className="mb-6">
           <div className="bg-gray-50 p-4 rounded">
-            <h2 className="font-semibold mb-3">Customer Info</h2>
+            <h2 className="font-semibold mb-3">{t('vendor.orders.customerInfo')}</h2>
             <div className="space-y-2 text-sm">
-              <p><span className="font-medium">Name:</span> {order.user?.full_name || 'N/A'}</p>
-              <p><span className="font-medium">Contact:</span> {order.user?.mobile_number || 'N/A'}</p>
-              <p><span className="font-medium">Address:</span> {order.shipping_address || 'N/A'}</p>
+              <p><span className="font-medium">{t('vendor.orders.name')}:</span> {order.user?.full_name || 'N/A'}</p>
+              <p><span className="font-medium">{t('vendor.orders.contact')}:</span> {order.user?.mobile_number || 'N/A'}</p>
+              <p><span className="font-medium">{t('vendor.orders.address')}:</span> {order.shipping_address || 'N/A'}</p>
             </div>
           </div>
         </div>
 
         <div className="mb-6">
-          <h2 className="font-semibold mb-3">Products</h2>
+          <h2 className="font-semibold mb-3">{t('vendor.orders.products')}</h2>
           {isMobileView ? (
             // Mobile Card View
             <div className="space-y-3">
@@ -78,7 +80,7 @@ export default function Show({ order }) {
                     <span className="text-sm">₱{product.price}</span>
                   </div>
                   <div className="text-sm text-gray-600">
-                    Quantity: {product.pivot.quantity}
+                    {t('vendor.orders.quantity')}: {product.pivot.quantity}
                   </div>
                 </div>
               ))}
@@ -86,22 +88,52 @@ export default function Show({ order }) {
           ) : (
             // Desktop Table View
             <div className="overflow-x-auto">
-              <table className="min-w-full text-sm border rounded">
-                <thead className="bg-gray-100">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-left">Name</th>
-                    <th className="px-4 py-2 text-left">Price</th>
-                    <th className="px-4 py-2 text-left">Qty</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('vendor.products.name')}
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('vendor.products.price')}
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('vendor.orders.quantity')}
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('vendor.orders.total')}
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white divide-y divide-gray-200">
                   {order.products.map((product) => (
-                    <tr key={product.id} className="border-t">
-                      <td className="px-4 py-2">{product.name}</td>
-                      <td className="px-4 py-2">₱{product.price}</td>
-                      <td className="px-4 py-2">{product.pivot.quantity}</td>
+                    <tr key={product.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">₱{Number(product.price).toLocaleString()}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{product.pivot.quantity}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="text-sm font-medium text-gray-900">
+                          ₱{Number(product.price * product.pivot.quantity).toLocaleString()}
+                        </div>
+                      </td>
                     </tr>
                   ))}
+                  <tr className="bg-gray-50">
+                    <td colSpan="3" className="px-6 py-4 text-right font-medium">
+                      {t('vendor.orders.total')}:
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-sm font-bold text-gray-900">
+                        ₱{Number(order.total_price).toLocaleString()}
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

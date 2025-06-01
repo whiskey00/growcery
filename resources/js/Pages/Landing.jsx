@@ -2,9 +2,11 @@ import React from 'react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Link, router } from '@inertiajs/react';
 import useCart from '@/Stores/useCart';
+import { useTranslation } from 'react-i18next';
 
 export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
     const { addToCart } = useCart();
+    const { t } = useTranslation();
 
     const handleAddToCart = (product) => {
         if (!isLoggedIn) {
@@ -25,7 +27,7 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
             }
         });
 
-        alert(`Added ${product.name} to cart!`);
+        alert(`${t('product.addedToCart', { name: product.name })}`);
     };
 
     return (
@@ -35,17 +37,17 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-green-800 mb-4">
-                            Welcome to Growcery
+                            {t('common.welcome')}
                         </h1>
                         <p className="text-base sm:text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
-                            Fresh produce from trusted local farmers. Buy directly, support locally, and enjoy quality products delivered to your doorstep.
+                            {t('landing.heroText')}
                         </p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
                             <Link
                                 href="/products"
                                 className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
                             >
-                                Start Shopping
+                                {t('landing.startShopping')}
                                 <svg className="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
@@ -55,7 +57,7 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
                                     href="/register"
                                     className="inline-flex items-center justify-center px-6 py-3 border border-green-600 text-base font-medium rounded-md text-green-600 bg-white hover:bg-green-50 transition-colors duration-200"
                                 >
-                                    Create Account
+                                    {t('common.register')}
                                 </Link>
                             )}
                         </div>
@@ -71,8 +73,8 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
             {/* Featured Products Section */}
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="text-center mb-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Featured Products</h2>
-                    <p className="mt-2 text-sm sm:text-base text-gray-600">Discover our handpicked selection of fresh produce</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('landing.featuredProducts')}</h2>
+                    <p className="mt-2 text-sm sm:text-base text-gray-600">{t('landing.featuredProductsSubtext')}</p>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -94,12 +96,12 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
                                         href={`/customer/products/${product.id}`}
                                         className="flex-1 flex items-center justify-center text-white bg-green-600 py-2 rounded-md hover:bg-green-700 text-sm transition-colors duration-200"
                                     >
-                                        View Details
+                                        {t('product.viewDetails')}
                                     </Link>
                                     <button
                                         onClick={() => handleAddToCart(product)}
                                         className="p-2 bg-yellow-500 rounded-md hover:bg-yellow-600 flex items-center justify-center transition-colors duration-200"
-                                        title="Add to Cart"
+                                        title={t('product.addToCart')}
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +125,7 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
                         href="/products"
                         className="inline-flex items-center text-green-600 hover:text-green-700 font-medium"
                     >
-                        View All Products
+                        {t('landing.viewAllProducts')}
                         <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import VendorLayout from '@/Layouts/VendorLayout';
 import { Link, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
+import { useTranslation } from 'react-i18next';
 
 export default function Index({ orders, activeStatus }) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
@@ -68,9 +70,9 @@ export default function Index({ orders, activeStatus }) {
             <div className="space-y-4 sm:space-y-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Orders</h1>
+                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{t('vendor.orders.title')}</h1>
                     <p className="mt-1 sm:mt-2 text-sm text-gray-700">
-                        Manage and track your orders
+                        {t('vendor.orders.manageOrders')}
                     </p>
                 </div>
 
@@ -78,7 +80,7 @@ export default function Index({ orders, activeStatus }) {
                 <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
                     {/* Search */}
                     <div className="w-full sm:max-w-lg lg:max-w-xs">
-                        <label htmlFor="search" className="sr-only">Search orders</label>
+                        <label htmlFor="search" className="sr-only">{t('vendor.orders.searchOrders')}</label>
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,7 +94,7 @@ export default function Index({ orders, activeStatus }) {
                                 value={search}
                                 onChange={handleSearch}
                                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                                placeholder="Search orders"
+                                placeholder={t('vendor.orders.searchOrders')}
                             />
                             {isSearching && (
                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -128,51 +130,39 @@ export default function Index({ orders, activeStatus }) {
                     {isMobileView ? (
                         // Mobile Card View
                         <div className="divide-y divide-gray-200">
-                            {orders.data.length > 0 ? (
+                            {orders.data && orders.data.length > 0 ? (
                                 orders.data.map((order) => (
                                     <div key={order.id} className="p-4">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center">
-                                                <div className="flex-shrink-0 h-12 w-12">
-                                                    <img
-                                                        className="h-12 w-12 rounded-lg object-cover"
-                                                        src={`/storage/${order.products[0]?.image}`}
-                                                        alt=""
-                                                    />
+                                        <div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {t('vendor.orders.orderNumber')}{String(order.id).padStart(5, '0')}
                                                 </div>
-                                                <div className="ml-3">
-                                                    <div className="text-sm font-medium text-gray-900">
-                                                        #{String(order.id).padStart(5, '0')}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500">
-                                                        {new Date(order.created_at).toLocaleDateString()}
-                                                    </div>
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(order.status)}`}>
+                                                    {order.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                </span>
+                                            </div>
+                                            <div className="mt-3">
+                                                <div className="text-sm font-medium text-gray-900">{order.user?.full_name || 'N/A'}</div>
+                                                <div className="text-xs text-gray-500">{order.user?.email}</div>
+                                            </div>
+                                            <div className="mt-3 flex items-center justify-between">
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    ₱{Number(order.total_price).toLocaleString()}
                                                 </div>
+                                                <Link
+                                                    href={`/vendor/orders/${order.id}`}
+                                                    className="text-sm text-green-600 hover:text-green-900"
+                                                >
+                                                    {t('vendor.orders.viewDetails')}
+                                                </Link>
                                             </div>
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(order.status)}`}>
-                                                {order.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                            </span>
-                                        </div>
-                                        <div className="mt-3">
-                                            <div className="text-sm font-medium text-gray-900">{order.user?.full_name || 'N/A'}</div>
-                                            <div className="text-xs text-gray-500">{order.user?.email}</div>
-                                        </div>
-                                        <div className="mt-3 flex items-center justify-between">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                ₱{Number(order.total_price).toLocaleString()}
-                                            </div>
-                                            <Link
-                                                href={`/vendor/orders/${order.id}`}
-                                                className="text-sm text-green-600 hover:text-green-900"
-                                            >
-                                                View Details
-                                            </Link>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="p-4 text-center text-gray-500">
-                                    No orders found
+                                    {t('vendor.orders.noOrdersFound')}
                                 </div>
                             )}
                         </div>
@@ -183,43 +173,29 @@ export default function Index({ orders, activeStatus }) {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Order Details
+                                            {t('vendor.orders.orderNumber')}
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Customer
+                                            {t('vendor.orders.customer')}
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Total
+                                            {t('vendor.orders.total')}
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
+                                            {t('vendor.orders.status')}
                                         </th>
                                         <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
+                                            {t('vendor.orders.actions')}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {orders.data.length > 0 ? (
+                                    {orders.data && orders.data.length > 0 ? (
                                         orders.data.map((order) => (
                                             <tr key={order.id} className="hover:bg-gray-50">
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="flex items-center">
-                                                        <div className="flex-shrink-0 h-10 w-10">
-                                                            <img
-                                                                className="h-10 w-10 rounded-lg object-cover"
-                                                                src={`/storage/${order.products[0]?.image}`}
-                                                                alt=""
-                                                            />
-                                                        </div>
-                                                        <div className="ml-4">
-                                                            <div className="text-sm font-medium text-gray-900">
-                                                                #{String(order.id).padStart(5, '0')}
-                                                            </div>
-                                                            <div className="text-sm text-gray-500">
-                                                                {new Date(order.created_at).toLocaleDateString()}
-                                                            </div>
-                                                        </div>
+                                                    <div className="text-sm font-medium text-gray-900">
+                                                        {t('vendor.orders.orderNumber')}{String(order.id).padStart(5, '0')}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -239,7 +215,7 @@ export default function Index({ orders, activeStatus }) {
                                                         href={`/vendor/orders/${order.id}`}
                                                         className="text-green-600 hover:text-green-900"
                                                     >
-                                                        View Details
+                                                        {t('vendor.orders.viewDetails')}
                                                     </Link>
                                                 </td>
                                             </tr>
@@ -247,7 +223,7 @@ export default function Index({ orders, activeStatus }) {
                                     ) : (
                                         <tr>
                                             <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                                                No orders found
+                                                {t('vendor.orders.noOrdersFound')}
                                             </td>
                                         </tr>
                                     )}

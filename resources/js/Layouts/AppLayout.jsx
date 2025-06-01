@@ -1,5 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 
 export default function AppLayout({ title, children }) {
     const { auth } = usePage().props;
@@ -9,6 +10,11 @@ export default function AppLayout({ title, children }) {
             <Head title={title} />
             
             <div className="min-h-screen bg-gray-100">
+                {/* Language Switcher */}
+                <div className="fixed top-4 right-4 z-50">
+                    <LanguageSwitcher />
+                </div>
+
                 {/* Main content */}
                 <main>
                     {children}

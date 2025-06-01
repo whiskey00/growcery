@@ -1,13 +1,15 @@
-import { useState } from 'react';
-import { usePage, Link, router } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { usePage, Link, router, Head } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import useCart from '@/Stores/useCart';
 import ReviewList from '@/Components/ReviewList';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
 import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
+import { useTranslation } from 'react-i18next';
 
 export default function Show() {
+  const { t } = useTranslation();
   const { addToCart } = useCart(); 
   const { product, auth } = usePage().props;
   const [selectedLabel, setSelectedLabel] = useState('');
@@ -79,6 +81,8 @@ export default function Show() {
 
   return (
     <CustomerLayout>
+      <Head title={product.name} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="grid md:grid-cols-2 gap-8 p-6 sm:p-8">
@@ -171,7 +175,7 @@ export default function Show() {
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="option" className="block text-sm font-medium text-gray-700">
-                      Select Option
+                      {t('product.selectOption')}
                     </label>
                     <select
                       id="option"
@@ -179,7 +183,7 @@ export default function Show() {
                       value={selectedLabel}
                       onChange={(e) => setSelectedLabel(e.target.value)}
                     >
-                      <option value="">Select an option</option>
+                      <option value="">{t('product.selectAnOption')}</option>
                       {product.options.map((opt, idx) => (
                         <option key={idx} value={opt.label}>
                           {opt.label} - ₱{opt.price}
@@ -191,7 +195,7 @@ export default function Show() {
                   {/* Quantity */}
                   <div>
                     <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
-                      Quantity
+                      {t('product.quantity')}
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
                       <button
@@ -199,7 +203,7 @@ export default function Show() {
                         onClick={() => quantity > 1 && setQuantity(quantity - 1)}
                         className="relative inline-flex items-center px-3 py-2 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100"
                       >
-                        <span className="sr-only">Decrease</span>
+                        <span className="sr-only">{t('product.decrease')}</span>
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                         </svg>
@@ -223,7 +227,7 @@ export default function Show() {
                         onClick={() => quantity < product.quantity && setQuantity(quantity + 1)}
                         className="relative inline-flex items-center px-3 py-2 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100"
                       >
-                        <span className="sr-only">Increase</span>
+                        <span className="sr-only">{t('product.increase')}</span>
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
@@ -240,7 +244,7 @@ export default function Show() {
                   disabled={!product.quantity || !product.options?.length || !selectedLabel}
                   className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {!selectedLabel ? 'Select an Option' : product.quantity ? 'Add to Cart' : 'Out of Stock'}
+                  {!selectedLabel ? t('product.selectAnOption') : product.quantity ? t('product.addToCart') : t('product.outOfStock')}
                   {product.quantity > 0 && selectedLabel && (
                     <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -253,7 +257,7 @@ export default function Show() {
                   disabled={!product.quantity || !product.options?.length || !selectedLabel}
                   className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {!selectedLabel ? 'Select an Option to Checkout' : 'Buy Now'}
+                  {!selectedLabel ? t('product.selectAnOptionToCheckout') : t('product.buyNow')}
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
@@ -265,7 +269,7 @@ export default function Show() {
                     className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                   >
                     <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
-                    Message Vendor
+                    {t('product.messageVendor')}
                   </button>
                 )}
               </div>
@@ -284,20 +288,20 @@ export default function Show() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-900">Added to cart successfully!</p>
+                  <p className="text-sm font-medium text-gray-900">{t('product.addedToCartSuccessfully')}</p>
                   <div className="mt-2 flex space-x-3">
                     <Link
                       href="/customer/cart"
                       className="text-sm font-medium text-green-600 hover:text-green-500"
                     >
-                      View Cart
+                      {t('product.viewCart')}
                     </Link>
                     <span className="text-gray-300">|</span>
                     <button
                       onClick={() => setShowSuccess(false)}
                       className="text-sm font-medium text-gray-600 hover:text-gray-500"
                     >
-                      Dismiss
+                      {t('product.dismiss')}
                     </button>
                   </div>
                 </div>
@@ -310,7 +314,7 @@ export default function Show() {
         <div className="mt-8 bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Customer Reviews
+              {t('product.customerReviews')}
             </h2>
             
             {/* Rating Summary */}
@@ -332,7 +336,7 @@ export default function Show() {
                       />
                     ))}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">Average Rating</div>
+                  <div className="text-sm text-gray-500 mt-1">{t('product.averageRating')}</div>
                 </div>
                 
                 {/* Rating Distribution - You can add this later when you have the data */}
@@ -342,7 +346,7 @@ export default function Show() {
               </div>
             ) : (
               <div className="text-center py-6 bg-gray-50 rounded-lg mb-6">
-                <p className="text-gray-500">No reviews yet</p>
+                <p className="text-gray-500">{t('product.noReviewsYet')}</p>
               </div>
             )}
 

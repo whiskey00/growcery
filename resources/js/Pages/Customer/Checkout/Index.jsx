@@ -4,6 +4,7 @@ import CustomerLayout from '@/Layouts/CustomerLayout';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from 'axios';
 import Toast from '@/Components/Toast';
+import { useTranslation } from 'react-i18next';
 
 export default function Index({ user, cartItems }) {
     const { csrf_token } = usePage().props;
@@ -11,6 +12,7 @@ export default function Index({ user, cartItems }) {
     const [qrData, setQrData] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState('pending');
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+    const { t } = useTranslation();
     
     // Set up axios CSRF token
     useEffect(() => {
@@ -96,7 +98,7 @@ export default function Index({ user, cartItems }) {
 
     return (
         <CustomerLayout>
-            <Head title="Checkout" />
+            <Head title={t('checkout.title')} />
             
             {/* Toast Component */}
             <Toast
@@ -109,8 +111,8 @@ export default function Index({ user, cartItems }) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header Section */}
                 <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 mb-8">
-                    <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Checkout</h1>
-                    <p className="text-green-100">Review your order and shipping information</p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">{t('checkout.title')}</h1>
+                    <p className="text-green-100">{t('checkout.subtitle')}</p>
                 </div>
 
                 {cartItems.length === 0 ? (
@@ -147,7 +149,7 @@ export default function Index({ user, cartItems }) {
                             <div className="bg-white shadow-sm rounded-lg overflow-hidden">
                                 <div className="border-b border-gray-200">
                                     <div className="p-6">
-                                        <h2 className="text-lg font-medium text-gray-900">Order Summary</h2>
+                                        <h2 className="text-lg font-medium text-gray-900">{t('checkout.orderSummary')}</h2>
                                     </div>
                                 </div>
                                 <div className="p-6">
@@ -164,13 +166,13 @@ export default function Index({ user, cartItems }) {
                                                 <div className="flex-1">
                                                     <h3 className="text-base font-medium text-gray-900">{item.name}</h3>
                                                     <p className="mt-1 text-sm text-gray-500">
-                                                        Option: {item.selectedOption.label}
+                                                        {t('checkout.option')}: {item.selectedOption.label}
                                                     </p>
                                                     <p className="mt-1 text-sm text-gray-500">
-                                                        Price: ₱{item.selectedOption.price} × {item.quantity}
+                                                        {t('checkout.quantity')}: {item.quantity}
                                                     </p>
                                                     <p className="mt-1 text-sm font-medium text-gray-900">
-                                                        Subtotal: ₱{(item.selectedOption.price * item.quantity).toFixed(2)}
+                                                        {t('checkout.subtotal')}: ₱{(item.selectedOption.price * item.quantity).toFixed(2)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -178,7 +180,7 @@ export default function Index({ user, cartItems }) {
                                     </div>
                                     <div className="mt-6 pt-6 border-t border-gray-200">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-base font-medium text-gray-900">Total Amount</span>
+                                            <span className="text-base font-medium text-gray-900">{t('checkout.subtotal')}</span>
                                             <span className="text-xl font-semibold text-green-600">
                                                 ₱{calculateTotal().toFixed(2)}
                                             </span>
@@ -198,7 +200,7 @@ export default function Index({ user, cartItems }) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 </svg>
                                             </div>
-                                            <h2 className="text-lg font-medium text-gray-900">Shipping Information</h2>
+                                            <h2 className="text-lg font-medium text-gray-900">{t('checkout.shippingDetails')}</h2>
                                         </div>
                                         <Link
                                             href="/customer/profile/edit"
@@ -220,7 +222,7 @@ export default function Index({ user, cartItems }) {
                                                 </svg>
                                             </dt>
                                             <dd className="ml-3">
-                                                <span className="block text-sm font-medium text-gray-500">Full Name</span>
+                                                <span className="block text-sm font-medium text-gray-500">{t('checkout.fullName')}</span>
                                                 <span className="block mt-1 text-sm text-gray-900">{user.full_name}</span>
                                             </dd>
                                         </div>
@@ -232,7 +234,7 @@ export default function Index({ user, cartItems }) {
                                                 </svg>
                                             </dt>
                                             <dd className="ml-3">
-                                                <span className="block text-sm font-medium text-gray-500">Mobile Number</span>
+                                                <span className="block text-sm font-medium text-gray-500">{t('checkout.contactNumber')}</span>
                                                 <span className="block mt-1 text-sm text-gray-900">{user.mobile_number || '—'}</span>
                                             </dd>
                                         </div>
@@ -245,7 +247,7 @@ export default function Index({ user, cartItems }) {
                                                 </svg>
                                             </dt>
                                             <dd className="ml-3">
-                                                <span className="block text-sm font-medium text-gray-500">Shipping Address</span>
+                                                <span className="block text-sm font-medium text-gray-500">{t('checkout.shippingAddress')}</span>
                                                 <span className="block mt-1 text-sm text-gray-900 whitespace-pre-wrap">{user.shipping_address || '—'}</span>
                                             </dd>
                                         </div>
@@ -259,7 +261,7 @@ export default function Index({ user, cartItems }) {
                             <div className="bg-white shadow-sm rounded-lg overflow-hidden sticky top-8">
                                 <div className="border-b border-gray-200">
                                     <div className="p-6">
-                                        <h2 className="text-lg font-medium text-gray-900">Payment Method</h2>
+                                        <h2 className="text-lg font-medium text-gray-900">{t('checkout.paymentMethod')}</h2>
                                     </div>
                                 </div>
                                 <div className="p-6">
@@ -276,8 +278,8 @@ export default function Index({ user, cartItems }) {
                                                 onChange={e => setData('payment_method', e.target.value)}
                                             />
                                             <div className="ml-3">
-                                                <span className="block text-sm font-medium text-gray-900">Cash on Delivery</span>
-                                                <span className="block text-sm text-gray-500">Pay when you receive</span>
+                                                <span className="block text-sm font-medium text-gray-900">{t('checkout.cashOnDelivery')}</span>
+                                                <span className="block text-sm text-gray-500">{t('checkout.payWhenReceive')}</span>
                                             </div>
                                         </label>
 
@@ -293,8 +295,8 @@ export default function Index({ user, cartItems }) {
                                                 onChange={e => setData('payment_method', e.target.value)}
                                             />
                                             <div className="ml-3">
-                                                <span className="block text-sm font-medium text-gray-900">QR Ph (Test Mode)</span>
-                                                <span className="block text-sm text-gray-500">Pay via QR code</span>
+                                                <span className="block text-sm font-medium text-gray-900">{t('checkout.qrPh')}</span>
+                                                <span className="block text-sm text-gray-500">{t('checkout.payViaQrCode')}</span>
                                             </div>
                                         </label>
                                     </div>
@@ -307,16 +309,16 @@ export default function Index({ user, cartItems }) {
                                     {qrData && data.payment_method === 'QRPh' && (
                                         <div className="mt-6 pt-6 border-t border-gray-200">
                                             <div className="text-center">
-                                                <h3 className="text-lg font-medium text-gray-900 mb-4">Scan QR Code to Pay</h3>
+                                                <h3 className="text-lg font-medium text-gray-900 mb-4">{t('checkout.scanQrCodeToPay')}</h3>
                                                 <div className="inline-block p-4 bg-white rounded-lg shadow-sm">
                                                     <QRCodeSVG value={qrData.qr_string} size={200} />
                                                 </div>
                                                 <p className="mt-4 text-sm text-gray-500">
-                                                    Reference: {qrData.reference}
+                                                    {t('checkout.reference')}: {qrData.reference}
                                                 </p>
                                                 {paymentStatus === 'pending' && (
                                                     <p className="mt-2 text-sm text-blue-600">
-                                                        Simulating payment... Please wait 5 seconds.
+                                                        {t('checkout.simulatingPayment')} {t('checkout.pleaseWait')} 5 {t('checkout.seconds')}
                                                     </p>
                                                 )}
                                             </div>
@@ -341,16 +343,16 @@ export default function Index({ user, cartItems }) {
 
                                 <div className="p-6 bg-gray-50 space-y-4">
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="font-medium text-gray-500">Subtotal</span>
+                                        <span className="font-medium text-gray-500">{t('checkout.subtotal')}</span>
                                         <span className="font-medium text-gray-900">₱{calculateTotal().toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="font-medium text-gray-500">Shipping Fee</span>
+                                        <span className="font-medium text-gray-500">{t('checkout.shippingFee')}</span>
                                         <span className="font-medium text-gray-900">₱0.00</span>
                                     </div>
                                     <div className="pt-4 border-t border-gray-200">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-base font-medium text-gray-900">Total</span>
+                                            <span className="text-base font-medium text-gray-900">{t('checkout.total')}</span>
                                             <span className="text-xl font-semibold text-green-600">₱{calculateTotal().toFixed(2)}</span>
                                         </div>
                                     </div>
@@ -366,10 +368,10 @@ export default function Index({ user, cartItems }) {
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
-                                                Processing...
+                                                {t('checkout.processing')}...
                                             </span>
                                         ) : (
-                                            'Place Order'
+                                            t('checkout.placeOrder')
                                         )}
                                     </button>
                                 </div>
