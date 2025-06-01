@@ -37,60 +37,33 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $user = $request->user();
-        $actingAs = session('acting_as');
-        
         // Get cart items for customers
-        $cartItems = [];
-        if ($user && ($user->role === 'customer' || ($user->role === 'vendor' && $actingAs === 'customer'))) {
-            $cartItems = $user->cartItems()
-                ->with(['product' => function ($query) {
-                    $query->with('vendor');
-                }])
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'product_id' => $item->product_id,
-                        'name' => $item->product->name,
-                        'image' => $item->product->image,
-                        'vendor' => $item->product->vendor,
-                        'quantity' => $item->quantity,
-                        'selectedOption' => [
-                            'label' => $item->option_label,
-                            'price' => $item->option_price,
-                        ],
-                    ];
-                });
-        }
+        $cartItems = $this->getCartItems($request);
 
         return array_merge(parent::share($request), [
+            'csrf_token' => csrf_token(),
             'auth' => [
-                'user' => $user,
-                'vendorApplication' => $user && $user->role === 'customer' ? 
-                    \App\Models\VendorApplication::where('user_id', $user->id)
+                'user' => $request->user(),
+                'vendorApplication' => $request->user() && $request->user()->role === 'customer' ? 
+                    \App\Models\VendorApplication::where('user_id', $request->user()->id)
                         ->latest()
                         ->first() : null,
             ],
-            'isLoggedIn' => $user !== null,
-            'role' => $user?->role,
-            'actingAs' => $actingAs,
+            'isLoggedIn' => $request->user() !== null,
+            'role' => $request->user()?->role,
+            'actingAs' => session('acting_as'),
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
             'cartItems' => $cartItems,
-            'locale' => [
-                'current' => App::getLocale(),
-                'available' => ['en', 'tl'],
-            ],
             'translations' => $this->getTranslations(),
         ]);
     }
 
     /**
-     * Get all the translation messages for the current locale.
+     * Get the translation messages for the current locale.
      *
      * @return array
      */
@@ -98,13 +71,47 @@ class HandleInertiaRequests extends Middleware
     {
         $locale = App::getLocale();
         $translations = [];
-        
-        // Load the messages translations
-        $messagesPath = lang_path("$locale/messages.php");
+
+        // Load messages translations
+        $messagesPath = lang_path("{$locale}/messages.php");
         if (file_exists($messagesPath)) {
-            $translations = array_merge($translations, require $messagesPath);
+            $translations = require $messagesPath;
         }
-        
+
         return $translations;
+    }
+
+    /**
+     * Get cart items for the current user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    protected function getCartItems($request)
+    {
+        $user = $request->user();
+        if (!$user || !($user->role === 'customer' || ($user->role === 'vendor' && session('acting_as') === 'customer'))) {
+            return [];
+        }
+
+        return $user->cartItems()
+            ->with(['product' => function ($query) {
+                $query->with('vendor');
+            }])
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'name' => $item->product->name,
+                    'image' => $item->product->image,
+                    'vendor' => $item->product->vendor,
+                    'quantity' => $item->quantity,
+                    'selectedOption' => [
+                        'label' => $item->option_label,
+                        'price' => $item->option_price,
+                    ],
+                ];
+            });
     }
 }

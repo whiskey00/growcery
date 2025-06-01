@@ -193,8 +193,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/messages/conversations/{conversation}', [ApiMessageController::class, 'getConversation']);
 });
 
-Route::post('/language/switch', [App\Http\Controllers\LanguageController::class, 'switch'])
-    ->name('language.switch')
-    ->middleware(['web']);
-
 require __DIR__.'/auth.php';

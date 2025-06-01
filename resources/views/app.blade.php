@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="Growcery - Your local farmers marketplace">
         <meta name="theme-color" content="#16a34a">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title inertia>{{ config('app.name', 'Growcery') }}</title>
 
