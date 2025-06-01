@@ -61,12 +61,13 @@ export default function Show() {
           <div className="grid md:grid-cols-2 gap-8 p-6 sm:p-8">
             {/* Product Image */}
             <div className="space-y-4">
-              <div className="aspect-w-4 aspect-h-3 bg-gray-200 rounded-lg overflow-hidden">
+              <div className="relative w-full h-[500px] bg-gray-100 rounded-lg overflow-hidden">
                 <img 
                   src={`/storage/${product.image}`} 
                   alt={product.name} 
-                  className="object-cover w-full h-full"
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
+                <div className="absolute inset-0 bg-black/5"></div>
               </div>
               
               {/* Vendor Information */}
