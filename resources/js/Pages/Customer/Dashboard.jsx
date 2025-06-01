@@ -86,7 +86,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Quick Actions Grid */}
-                <div className="grid gap-6 md:grid-cols-3 mb-8">
+                <div className={`grid gap-6 ${isActingVendor ? 'md:grid-cols-4' : 'md:grid-cols-3'} mb-8`}>
                     {/* Continue Shopping */}
                     <Link href="/products" className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
                         <div className="p-6">
@@ -146,6 +146,28 @@ export default function Dashboard() {
                             View Profile →
                         </div>
                     </Link>
+
+                    {/* Vendor Dashboard (only shown for vendors) */}
+                    {isActingVendor && (
+                        <Link href="/vendor/dashboard" className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
+                            <div className="p-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-yellow-100 text-yellow-600 p-3 rounded-lg group-hover:scale-110 transition-transform duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-lg text-gray-800">Vendor Dashboard</h3>
+                                        <p className="text-gray-600">Manage your vendor account</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="px-6 py-3 bg-gray-50 text-sm text-yellow-600 font-medium">
+                                View Dashboard →
+                            </div>
+                        </Link>
+                    )}
                 </div>
 
                 {/* Recent Orders Section */}
@@ -194,16 +216,20 @@ export default function Dashboard() {
                                         </div>
                                         <div className="p-4">
                                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                                {order.products.map(product => (
-                                                    <div key={product.id} className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                                                {order.products.map((product, index) => (
+                                                    <div key={`${order.id}-${product.id}-${index}`} className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
                                                         <img 
                                                             src={`/storage/${product.image}`} 
-                                                            alt={product.name} 
-                                                            className="w-16 h-16 rounded-lg object-cover border"
+                                                            alt={product.name}
+                                                            className="w-12 h-12 object-cover rounded"
                                                         />
-                                                        <div>
-                                                            <div className="font-medium text-gray-900">{product.name}</div>
-                                                            <div className="text-sm text-gray-500">{product.pivot.quantity} pcs</div>
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-medium text-gray-900 truncate">
+                                                                {product.name}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                Qty: {product.pivot.quantity}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 ))}

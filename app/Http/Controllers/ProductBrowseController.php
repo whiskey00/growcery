@@ -11,7 +11,7 @@ class ProductBrowseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with('category')
+        $query = Product::with(['category', 'vendor:id,name,full_name'])
             ->where('status', 'published');
 
         if ($request->filled('search')) {

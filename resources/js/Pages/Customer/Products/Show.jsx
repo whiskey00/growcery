@@ -2,13 +2,18 @@ import { useState } from 'react';
 import { usePage, Link, router } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import useCart from '@/Stores/useCart';
+import ReviewList from '@/Components/ReviewList';
+import { StarIcon } from '@heroicons/react/20/solid';
+import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
 
 export default function Show() {
   const { addToCart } = useCart(); 
-  const { product } = usePage().props;
+  const { product, auth } = usePage().props;
   const [selectedLabel, setSelectedLabel] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   const handleAddToCart = () => {
     const selectedOption = product.options.find(opt => opt.label === selectedLabel);
@@ -54,6 +59,24 @@ export default function Show() {
     });
   };
 
+  const handleMessageVendor = () => {
+    // Send the initial message using Inertia
+    router.post('/messages', {
+      receiver_id: product.vendor_id,
+      message_text: `Hi, I'm interested in your product: ${product.name}`,
+      product_id: product.id
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        // Show the chat drawer
+        setShowChat(true);
+      },
+      onError: (errors) => {
+        console.error('Failed to send message:', errors);
+      }
+    });
+  };
+
   return (
     <CustomerLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -83,14 +106,19 @@ export default function Show() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900">
-                        {product.vendor.full_name || 'Vendor'}
+                        {product.vendor.full_name}
                       </p>
-                      <p className="text-sm text-gray-500">Verified Vendor</p>
+                      <div className="mt-1 flex items-center text-sm text-gray-500">
+                        <svg className="flex-shrink-0 mr-1.5 h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Verified Vendor
+                      </div>
                       <Link
-                        href={`/vendors/${product.vendor_id}`}
+                        href={route('customer.vendors.show', { vendor: product.vendor.id })}
                         className="mt-2 inline-flex items-center text-sm text-green-600 hover:text-green-700"
                       >
-                        View Profile
+                        Visit Shop
                         <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
@@ -230,6 +258,16 @@ export default function Show() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </button>
+
+                {auth.user && auth.user.role === 'customer' && (
+                  <button
+                    onClick={handleMessageVendor}
+                    className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
+                    Message Vendor
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -267,7 +305,57 @@ export default function Show() {
             </div>
           </div>
         )}
+
+        {/* Rating Summary and Reviews Section */}
+        <div className="mt-8 bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              Customer Reviews
+            </h2>
+            
+            {/* Rating Summary */}
+            {product.average_rating ? (
+              <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg mb-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900">
+                    {Number(product.average_rating).toFixed(1)}
+                  </div>
+                  <div className="flex items-center mt-1">
+                    {[...Array(5)].map((_, index) => (
+                      <StarIcon
+                        key={index}
+                        className={`h-5 w-5 ${
+                          index < Math.floor(Number(product.average_rating))
+                            ? 'text-yellow-400'
+                            : 'text-gray-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">Average Rating</div>
+                </div>
+                
+                {/* Rating Distribution - You can add this later when you have the data */}
+                <div className="flex-1">
+                  {/* Add rating distribution bars here if you want */}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-6 bg-gray-50 rounded-lg mb-6">
+                <p className="text-gray-500">No reviews yet</p>
+              </div>
+            )}
+
+            {/* Reviews List */}
+            <div className="space-y-6">
+              <ReviewList productId={product.id} />
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Add FloatingChatWidget */}
+      <FloatingChatWidget key={showChat ? 'open' : 'closed'} initiallyOpen={showChat} />
     </CustomerLayout>
   );
 }

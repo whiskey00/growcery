@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 
 export default function CustomerLayout({ children }) {
     const { auth, cartItems } = usePage().props;
@@ -81,6 +83,7 @@ export default function CustomerLayout({ children }) {
 
                         {/* Desktop Right Navigation */}
                         <div className="hidden md:flex md:items-center md:space-x-4">
+                            <LanguageSwitcher />
                             {auth.user ? (
                                 <>
                                     <Link
@@ -152,6 +155,7 @@ export default function CustomerLayout({ children }) {
 
                         {/* Mobile Right Navigation */}
                         <div className="flex items-center md:hidden">
+                            <LanguageSwitcher />
                             {auth.user && (
                                 <Link href="/customer/cart" className="relative p-2 text-white hover:text-green-100">
                                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -258,6 +262,9 @@ export default function CustomerLayout({ children }) {
                     </div>
                 </div>
             </footer>
+
+            {/* Add FloatingChatWidget */}
+            <FloatingChatWidget />
         </div>
     );
 }

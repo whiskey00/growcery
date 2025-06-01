@@ -14,7 +14,7 @@ import { Doughnut, Bar } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-export default function Dashboard({ totalSales, totalOrders, bestSelling, monthlyEarnings, topSelling, recentOrders }) {
+export default function Dashboard({ totalSales, totalOrders, bestSelling, monthlyEarnings, topSelling, recentOrders, averageRating = 4.5, ratingDistribution = {1: 2, 2: 5, 3: 10, 4: 25, 5: 40}, recentReviews = [] }) {
     const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const earningsData = monthLabels.map((_, i) => monthlyEarnings[i + 1] || 0);
 
@@ -41,6 +41,30 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
         ],
     };
 
+    // Rating distribution chart data
+    const ratingData = {
+        labels: ['1★', '2★', '3★', '4★', '5★'],
+        datasets: [
+            {
+                data: [
+                    ratingDistribution[1] || 0,
+                    ratingDistribution[2] || 0,
+                    ratingDistribution[3] || 0,
+                    ratingDistribution[4] || 0,
+                    ratingDistribution[5] || 0,
+                ],
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.6)',
+                    'rgba(249, 115, 22, 0.6)',
+                    'rgba(234, 179, 8, 0.6)',
+                    'rgba(34, 197, 94, 0.6)',
+                    'rgba(22, 163, 74, 0.6)',
+                ],
+                borderRadius: 6,
+            },
+        ],
+    };
+
     return (
         <VendorLayout>
             <div className="space-y-4 sm:space-y-6">
@@ -53,7 +77,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-5">
                     {/* Total Sales */}
                     <div className="bg-white rounded-lg shadow p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center">
@@ -102,6 +126,21 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                         </div>
                     </div>
 
+                    {/* Average Rating */}
+                    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center">
+                            <div className="p-2 sm:p-3 rounded-full bg-purple-100 text-purple-600 mb-3 sm:mb-0">
+                                <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </div>
+                            <div className="sm:ml-4">
+                                <h2 className="text-gray-500 text-xs sm:text-sm font-medium">Average Rating</h2>
+                                <p className="text-lg sm:text-2xl font-semibold text-gray-900">{averageRating.toFixed(1)} ★</p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Quick Actions */}
                     <div className="bg-white rounded-lg shadow p-4 sm:p-6">
                         <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-3 sm:mb-4">Quick Actions</h3>
@@ -123,7 +162,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                 </div>
 
                 {/* Charts */}
-                <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
                     {/* Top Selling Products */}
                     <div className="bg-white shadow rounded-lg p-4 sm:p-6">
                         <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">Top Selling Products</h2>
@@ -185,6 +224,102 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                             />
                         </div>
                     </div>
+
+                    {/* Rating Distribution */}
+                    <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+                        <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4">Rating Distribution</h2>
+                        <div className="h-[250px] sm:h-[300px]">
+                            <Bar 
+                                data={ratingData} 
+                                options={{ 
+                                    responsive: true, 
+                                    maintainAspectRatio: false,
+                                    plugins: { 
+                                        legend: { 
+                                            display: false 
+                                        } 
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                font: {
+                                                    size: window.innerWidth < 640 ? 10 : 12
+                                                }
+                                            }
+                                        },
+                                        x: {
+                                            ticks: {
+                                                font: {
+                                                    size: window.innerWidth < 640 ? 10 : 12
+                                                }
+                                            }
+                                        }
+                                    }
+                                }} 
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recent Reviews */}
+                <div className="bg-white shadow rounded-lg overflow-hidden">
+                    <div className="p-4 sm:p-6 border-b">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-base sm:text-lg font-medium text-gray-900">Recent Reviews</h2>
+                            <Link href="/vendor/reviews" className="text-xs sm:text-sm text-green-600 hover:text-green-700">
+                                View all
+                            </Link>
+                        </div>
+                    </div>
+                    <div className="divide-y divide-gray-200">
+                        {recentReviews.length > 0 ? (
+                            recentReviews.map((review) => (
+                                <div key={review.id} className="p-4 sm:p-6">
+                                    <div className="flex items-start">
+                                        <div className="flex-shrink-0">
+                                            <img
+                                                className="h-10 w-10 rounded-full"
+                                                src={`https://ui-avatars.com/api/?name=${review.user_name}&background=0D9488&color=fff`}
+                                                alt=""
+                                            />
+                                        </div>
+                                        <div className="ml-4 flex-1">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="text-sm font-medium text-gray-900">{review.user_name}</h3>
+                                                <p className="text-sm text-gray-500">{new Date(review.created_at).toLocaleDateString()}</p>
+                                            </div>
+                                            <div className="flex items-center mt-1">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <svg
+                                                        key={i}
+                                                        className={`h-5 w-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                                        fill="currentColor"
+                                                        viewBox="0 0 20 20"
+                                                    >
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                    </svg>
+                                                ))}
+                                            </div>
+                                            <p className="mt-2 text-sm text-gray-700">{review.comment}</p>
+                                            <div className="mt-2">
+                                                <Link
+                                                    href={`/vendor/products/${review.product_id}`}
+                                                    className="text-xs text-green-600 hover:text-green-700"
+                                                >
+                                                    View Product →
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-4 sm:p-6 text-center text-gray-500">
+                                No reviews yet
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Recent Orders */}
@@ -200,7 +335,7 @@ export default function Dashboard({ totalSales, totalOrders, bestSelling, monthl
                     <div className="overflow-x-auto">
                         <div className="inline-block min-w-full align-middle">
                             <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                                <thead>
                                     <tr>
                                         <th scope="col" className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Product

@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductReview;
 
 class VendorDashboardController extends Controller
 {
@@ -48,6 +49,36 @@ class VendorDashboardController extends Controller
             ->with('products:id,name')
             ->get();
 
+        // Get all products for this vendor
+        $productIds = Product::where('vendor_id', $user->id)->pluck('id');
+
+        // Calculate average rating
+        $averageRating = ProductReview::whereIn('product_id', $productIds)
+            ->avg('rating') ?? 0;
+
+        // Get rating distribution
+        $ratingDistribution = ProductReview::whereIn('product_id', $productIds)
+            ->selectRaw('rating, COUNT(*) as count')
+            ->groupBy('rating')
+            ->pluck('count', 'rating')
+            ->toArray();
+
+        // Get recent reviews
+        $recentReviews = ProductReview::whereIn('product_id', $productIds)
+            ->with(['user:id,name', 'product:id,name'])
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(fn($review) => [
+                'id' => $review->id,
+                'user_name' => $review->user->name,
+                'product_id' => $review->product_id,
+                'product_name' => $review->product->name,
+                'rating' => $review->rating,
+                'comment' => $review->review,
+                'created_at' => $review->created_at,
+            ]);
+
         return Inertia::render('Vendor/Dashboard', [
             'totalSales' => $totalSales,
             'totalOrders' => $totalOrders,
@@ -55,6 +86,9 @@ class VendorDashboardController extends Controller
             'monthlyEarnings' => $monthlyEarnings,
             'topSelling' => $topSelling,
             'recentOrders' => $recentOrders,
+            'averageRating' => round($averageRating, 1),
+            'ratingDistribution' => $ratingDistribution,
+            'recentReviews' => $recentReviews,
         ]);
     }
 }

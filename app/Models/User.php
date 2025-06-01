@@ -56,4 +56,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(CartItem::class);
     }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'vendor_id');
+    }
+
+    public function getAddressAttribute()
+    {
+        return $this->shipping_address;
+    }
 }

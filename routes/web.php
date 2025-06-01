@@ -15,6 +15,10 @@ use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\CustomerDashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Customer\QRPhPaymentController;
+use App\Http\Controllers\Customer\VendorController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Api\MessageController as ApiMessageController;
+use App\Http\Controllers\Vendor\ReviewController;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -89,13 +93,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:vendor')->prefix('vendor')->name('vendor.')->group(function () {
         Route::get('/', fn () => redirect()->route('vendor.dashboard'));
         Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
-
-        Route::resource('products', VendorProductController::class)->except(['show']);
-
+        Route::get('/products', [VendorProductController::class, 'index'])->name('products.index');
+        Route::get('/products/create', [VendorProductController::class, 'create'])->name('products.create');
+        Route::post('/products', [VendorProductController::class, 'store'])->name('products.store');
+        Route::get('/products/{product}', [VendorProductController::class, 'edit'])->name('products.edit');
+        Route::put('/products/{product}', [VendorProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/{product}', [VendorProductController::class, 'destroy'])->name('products.destroy');
         Route::get('/orders', [VendorOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [VendorOrderController::class, 'show'])->name('orders.show');
-        Route::patch('/orders/{order}/status', [VendorOrderController::class, 'updateStatus'])->name('orders.updateStatus');
-        Route::patch('/orders/{order}', [VendorOrderController::class, 'update'])->name('orders.update');
+        Route::post('/orders/{order}/status', [VendorOrderController::class, 'updateStatus'])->name('orders.status.update');
+        Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     });
 
     // Customer-only
@@ -142,11 +149,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // QR Ph Payment Routes
         Route::post('/qrph/generate', [QRPhPaymentController::class, 'generateQR']);
         Route::post('/qrph/simulate-payment', [QRPhPaymentController::class, 'simulatePayment']);
+
+        // Add vendor profile route here
+        Route::get('/vendors/{vendor}', [VendorController::class, 'show'])->name('vendors.show');
+
+        // Product Reviews
+        Route::post('/reviews', [App\Http\Controllers\Customer\ProductReviewController::class, 'store'])
+            ->name('reviews.store');
+        Route::get('/products/{product}/reviews', [App\Http\Controllers\Customer\ProductReviewController::class, 'index'])
+            ->name('products.reviews.index');
     });
 
     // Vendor role switch route
     Route::post('/vendor/switch-view', [App\Http\Controllers\Vendor\RoleSwitchController::class, 'switch'])
         ->name('vendor.switch-view');
+
+    // Message routes
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/new', [MessageController::class, 'show'])->name('messages.new');
+    Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 });
 
 // Admin vendor application routes
@@ -164,5 +186,15 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/vendor-applications/{application}/document', [App\Http\Controllers\Admin\VendorApplicationController::class, 'viewDocument'])
         ->name('admin.vendor-applications.document');
 });
+
+// Message API routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/api/messages/conversations', [ApiMessageController::class, 'getConversations']);
+    Route::get('/api/messages/conversations/{conversation}', [ApiMessageController::class, 'getConversation']);
+});
+
+Route::post('/language/switch', [App\Http\Controllers\LanguageController::class, 'switch'])
+    ->name('language.switch')
+    ->middleware(['web']);
 
 require __DIR__.'/auth.php';

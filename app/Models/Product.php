@@ -17,10 +17,13 @@ class Product extends Model
         'options',
         'quantity',
         'image',
+        'average_rating',
     ];
 
     protected $casts = [
-        'options' => 'array', 
+        'options' => 'array',
+        'price' => 'decimal:2',
+        'average_rating' => 'decimal:1',
     ];
 
     public function vendor()
@@ -33,10 +36,13 @@ class Product extends Model
         return $this->belongsToMany(Order::class);
     }
 
-
     public function category()
     {
         return $this->belongsTo(\App\Models\Category::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
 }

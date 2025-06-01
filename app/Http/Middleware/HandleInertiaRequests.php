@@ -5,28 +5,35 @@ namespace App\Http\Middleware;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Illuminate\Support\Facades\App;
 
 class HandleInertiaRequests extends Middleware
 {
     /**
-     * The root template that is loaded on the first page visit.
+     * The root template that's loaded on the first page visit.
      *
      * @var string
      */
     protected $rootView = 'app';
 
     /**
-     * Determine the current asset version.
+     * Determines the current asset version.
+     *
+     * @see https://inertiajs.com/asset-versioning
+     * @param  \Illuminate\Http\Request  $request
+     * @return string|null
      */
-    public function version(Request $request): string|null
+    public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
     /**
-     * Define the props that are shared by default.
+     * Defines the props that are shared by default.
      *
-     * @return array<string, mixed>
+     * @see https://inertiajs.com/shared-data
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
      */
     public function share(Request $request): array
     {
@@ -69,10 +76,35 @@ class HandleInertiaRequests extends Middleware
             'role' => $user?->role,
             'actingAs' => $actingAs,
             'flash' => [
+                'message' => fn () => $request->session()->get('message'),
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
             'cartItems' => $cartItems,
+            'locale' => [
+                'current' => App::getLocale(),
+                'available' => ['en', 'tl'],
+            ],
+            'translations' => $this->getTranslations(),
         ]);
+    }
+
+    /**
+     * Get all the translation messages for the current locale.
+     *
+     * @return array
+     */
+    protected function getTranslations(): array
+    {
+        $locale = App::getLocale();
+        $translations = [];
+        
+        // Load the messages translations
+        $messagesPath = lang_path("$locale/messages.php");
+        if (file_exists($messagesPath)) {
+            $translations = array_merge($translations, require $messagesPath);
+        }
+        
+        return $translations;
     }
 }
