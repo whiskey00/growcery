@@ -87,7 +87,7 @@ export default function Orders() {
                   </div>
 
                   {order.products.map((product) => (
-                    <div key={product.id} className="flex gap-4 items-center border-b pb-4 last:border-b-0">
+                    <div key={`${order.id}-${product.id}-${product.pivot.option_label}`} className="flex gap-4 items-center border-b pb-4 last:border-b-0">
                       <img
                         src={`/storage/${product.image}`}
                         alt={product.name}
@@ -125,9 +125,9 @@ export default function Orders() {
           {/* Pagination */}
             {orders.links && (
             <div className="mt-6 flex justify-center gap-2 flex-wrap text-sm">
-                {orders.links.map((link, i) => (
+                {orders.links.map((link, index) => (
                 <button
-                    key={i}
+                    key={`${index}-${link.url || link.label}`}
                     disabled={!link.url}
                     onClick={() => link.url && router.visit(link.url)}
                     dangerouslySetInnerHTML={{ __html: link.label }}

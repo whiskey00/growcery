@@ -3,12 +3,14 @@ import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from 'axios';
+import Toast from '@/Components/Toast';
 
 export default function Index({ user, cartItems }) {
     const { csrf_token } = usePage().props;
     const isDirectCheckout = cartItems.length === 1 && cartItems[0].id === 'temp';
     const [qrData, setQrData] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState('pending');
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
     
     // Set up axios CSRF token
     useEffect(() => {
@@ -70,13 +72,24 @@ export default function Index({ user, cartItems }) {
                 const response = await axios.post('/customer/qrph/simulate-payment', { reference });
                 if (response.data.success) {
                     setPaymentStatus('to_ship');
-                    // Show success message before redirecting
-                    alert('Payment successful! Your order will be shipped soon.');
-                    // Redirect to orders page after successful payment
-                    window.location.href = '/customer/orders';
+                    // Show success toast instead of alert
+                    setToast({
+                        show: true,
+                        message: 'Payment successful! Your order will be shipped soon.',
+                        type: 'success'
+                    });
+                    // Redirect to orders page after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/customer/orders';
+                    }, 2000);
                 }
             } catch (error) {
                 console.error('Payment simulation failed:', error);
+                setToast({
+                    show: true,
+                    message: 'Payment failed. Please try again.',
+                    type: 'error'
+                });
             }
         }, 5000);
     };
@@ -84,6 +97,14 @@ export default function Index({ user, cartItems }) {
     return (
         <CustomerLayout>
             <Head title="Checkout" />
+            
+            {/* Toast Component */}
+            <Toast
+                show={toast.show}
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast({ ...toast, show: false })}
+            />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header Section */}

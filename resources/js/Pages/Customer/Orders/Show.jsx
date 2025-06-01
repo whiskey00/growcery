@@ -65,7 +65,7 @@ export default function Show() {
           )}
           <div className="space-y-4">
             {order.products.map((product) => (
-              <div key={product.id} className="flex gap-4 items-center border-b pb-4 last:border-b-0">
+              <div key={`order-product-${product.id}-${product.pivot.option_label}`} className="flex gap-4 items-center border-b pb-4 last:border-b-0">
                 <img
                   src={`/storage/${product.image}`}
                   alt={product.name}
@@ -120,7 +120,7 @@ export default function Show() {
             </h2>
             <div className="bg-white rounded-lg shadow divide-y">
               {order.products.map((product) => (
-                <div key={product.id} className="p-6">
+                <div key={`review-product-${product.id}-${product.pivot.option_label}`} className="p-6">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex-shrink-0 w-16 h-16">
                       {product.image ? (
