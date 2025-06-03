@@ -1,94 +1,89 @@
-# Growcery – Multi-Vendor Produce Marketplace
+# Growcery – Multi‑Vendor Produce Marketplace (Laravel + React)
 
-Growcery is a Laravel + Inertia.js powered e-commerce platform that connects customers with local produce vendors. Inspired by platforms like Shopee and Lazada, Growcery is tailored for fresh market goods and agricultural commerce.
+## Overview 
+**Growcery** is a multi-vendor e-commerce platform for fresh produce, built with a Laravel back-end and a React front-end (via Inertia.js). It connects customers with local produce vendors, similar to marketplaces like Shopee or Lazada, but tailored for agricultural goods. The system uses **role-based authentication** with distinct portals for **Admin**, **Vendor**, and **Customer** users. Customers can browse products, manage a cart, and view orders, while vendors have dashboards to manage products and orders, and admins oversee the entire platform. The interface is mobile-first and styled with Tailwind CSS for a clean, responsive user experience.
 
-## Live Preview
-Coming soon...
+## Technology Stack 
+- **Laravel** – PHP web framework (v12.x)
+- **React** – JavaScript UI library (v18)
+- **Inertia.js** – Monolithic SPA approach
+- **MySQL** – Database (via XAMPP)
+- **Tailwind CSS** – For responsive UI
+- **Vite** – For asset bundling and dev server
 
-## Features
+## Installation – Local Setup with XAMPP
 
-### General
-- Role-based authentication (admin, vendor, customer)
-- Responsive user interface using Tailwind CSS
-- Mobile-first layout and clean design
-- Shared layout components for consistency
+### Prerequisites 
+- XAMPP with PHP 8.2+ and MySQL
+- Composer
+- Node.js and npm (v16+ recommended)
+- Git (optional)
 
-### Customer Capabilities
-- Browse products by category
-- Integrated search functionality
-- Product detail and cart-ready buttons
-- Checkout interface (to be implemented)
-- Order history with status filtering
-- Profile management and dashboard overview
+### Setup Steps
 
-### Vendor Capabilities (In Development)
-- Vendor dashboard
-- Product CRUD operations
-- Order management
+1. **Clone the Repository**  
+   ```bash
+   git clone https://github.com/whiskey00/growcery.git
+   cd growcery
+   ```
 
-### Admin Capabilities
-- User management interface
-- Product and category administration
-- System-wide order monitoring
+2. **Start XAMPP Services** (MySQL and optionally Apache)
 
-## Folder Structure
+3. **Install PHP Dependencies**  
+   ```bash
+   composer install
+   ```
 
-```
-resources/js/
-├── Layouts/
-│   ├── CustomerLayout.jsx
-│   ├── AdminLayout.jsx
-├── Pages/
-│   ├── Auth/
-│   ├── Customer/
-│   ├── Admin/
-│   ├── Landing.jsx
-│   ├── Products/
-│   └── Dashboard.jsx
-```
+4. **Environment Setup**  
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   Edit `.env`:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=growcery
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-## Technology Stack
+5. **Create the Database**  
+   Use phpMyAdmin or MySQL CLI to create a `growcery` database.
 
-- Laravel 10+
-- Inertia.js (React)
-- Tailwind CSS
-- MySQL / SQLite
-- Vite (for development)
+6. **Run Migrations**  
+   ```bash
+   php artisan migrate
+   ```
 
-## Getting Started
+7. **Install Front-end Dependencies**  
+   ```bash
+   npm install
+   ```
 
-To run the project locally:
+8. **Run Dev Servers**  
+   ```bash
+   npm run dev    # Frontend/Vite dev server
+   php artisan serve  # Laravel backend
+   ```
 
-```bash
-git clone https://github.com/whiskey00/growcery.git
-cd growcery
+Visit the app at [http://localhost:8000](http://localhost:8000)
 
-# Backend setup
-composer install
-cp .env.example .env
-php artisan key:generate
+## Common Issues
 
-# Frontend setup
-npm install
-npm run dev
+- `.env` not set or key missing → Run `php artisan key:generate`
+- DB connection error → Check MySQL is running and `.env` is correct
+- Port 8000 in use → Use `php artisan serve --port=8001`
+- Apache issues → Ensure mod_rewrite is enabled and public/ is the doc root
+- Front-end not updating → Ensure `npm run dev` is running
 
-# Database setup
-php artisan migrate
-```
+## Notes
 
-## Roadmap
+- This is a monolithic Laravel + React SPA using Inertia.
+- Use `npm run build` for production builds.
+- Apache setup: place the project in `htdocs`, point doc root to `/public`.
 
-- [x] Customer dashboard and navigation
-- [x] Product browsing with search
-- [x] Order list and details UI
-- [x] Full cart and checkout process
-- [x] Vendor management tools
-- [x] Order lifecycle and payment integration
+---
 
-## Contribution
-
-Contributions and feedback are welcome. Fork the repository, create a feature branch, and submit a pull request.
-
-## License
-
-This project is open-source and available under the MIT License.
+Enjoy developing Growcery locally!

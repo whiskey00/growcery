@@ -6,7 +6,7 @@ import axios from 'axios';
 import './i18n'; // Import i18n configuration
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 // Set up CSRF token in axios defaults
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 if (csrfToken) {
