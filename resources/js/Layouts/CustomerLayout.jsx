@@ -296,7 +296,7 @@ export default function CustomerLayout({ children }) {
                             <h3 className="text-sm font-semibold text-gray-900 mb-4">Help & Support</h3>
                             <ul className="space-y-3">
                                 <li>
-                                    <Link href="/customer/vendor-application" className="text-sm text-gray-600 hover:text-green-600">
+                                    <Link href="/customer/profile" className="text-sm text-gray-600 hover:text-green-600">
                                         Become a Vendor
                                     </Link>
                                 </li>
