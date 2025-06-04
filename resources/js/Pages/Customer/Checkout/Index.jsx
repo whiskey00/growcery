@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Head, useForm, usePage, Link } from '@inertiajs/react';
+import { useState } from 'react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from 'axios';
@@ -7,17 +7,12 @@ import Toast from '@/Components/Toast';
 import { useTranslation } from 'react-i18next';
 
 export default function Index({ user, cartItems }) {
-    const { csrf_token } = usePage().props;
+
     const isDirectCheckout = cartItems.length === 1 && cartItems[0].id === 'temp';
     const [qrData, setQrData] = useState(null);
     const [paymentStatus, setPaymentStatus] = useState('pending');
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
     const { t } = useTranslation();
-    
-    // Set up axios CSRF token
-    useEffect(() => {
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrf_token;
-    }, [csrf_token]);
     
     const { data, setData, post, processing, errors } = useForm({
         shipping_address: user.shipping_address || '',

@@ -7,11 +7,10 @@ import './i18n'; // Import i18n configuration
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-// Set up CSRF token in axios defaults
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-if (csrfToken) {
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
-}
+// Automatically send the latest CSRF token on each request
+axios.defaults.withCredentials = true;
+axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
+axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
