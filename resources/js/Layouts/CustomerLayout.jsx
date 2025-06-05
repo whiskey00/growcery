@@ -51,6 +51,12 @@ export default function CustomerLayout({ children }) {
 
                         {/* Desktop Navigation */}
                         <div className="hidden md:flex md:items-center md:space-x-4">
+                            <Link
+                                href="/products"
+                                className="text-white hover:text-green-100 px-3 py-2 text-sm font-medium"
+                            >
+                                Browse Products
+                            </Link>
                             <form onSubmit={handleSearch} className="relative w-96">
                                 <input
                                     type="text"
@@ -65,12 +71,7 @@ export default function CustomerLayout({ children }) {
                                     </svg>
                                 </div>
                             </form>
-                            <Link
-                                href="/products"
-                                className="text-white hover:text-green-100 px-3 py-2 text-sm font-medium"
-                            >
-                                Browse Products
-                            </Link>
+
                             {auth.user && (
                                 <Link
                                     href="/customer/dashboard"
