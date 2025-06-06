@@ -27,7 +27,9 @@ export default function Show({ order }) {
 
   const updateStatus = (e) => {
     e.preventDefault();
-    patch(`/vendor/orders/${order.id}`);
+    patch(`/vendor/orders/${order.id}`, {
+      status: data.status
+    });
   };
 
   const getStatusColor = (status) => {

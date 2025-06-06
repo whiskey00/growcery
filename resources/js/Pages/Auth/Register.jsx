@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '@/firebase';
+import axios from 'axios';
 
 export default function Register() {
     const { t } = useTranslation();
@@ -24,7 +27,24 @@ export default function Register() {
     };
 
     const handleGoogleSignIn = async () => {
-        window.location.href = route('auth.google');
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            // Send the Google user data to your backend
+            const response = await axios.post('/login/google', {
+                email: user.email,
+                name: user.displayName,
+                uid: user.uid,
+            });
+
+            // If successful, let the backend handle redirection
+            if (response.status === 200) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error("Google Sign-In error:", error);
+        }
     };
 
     return (

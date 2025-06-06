@@ -79,14 +79,14 @@ export default function Index({ cartItems }) {
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex items-center border rounded-md">
                         <button
-                          onClick={() => updateQuantity(item.id, item.selectedOption.label, Math.max(1, item.quantity - 1))}
+                          onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                           className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                         >
                           -
                         </button>
                         <span className="px-3 py-1 text-gray-900">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.selectedOption.label, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                           className="px-3 py-1 text-gray-600 hover:bg-gray-100"
                         >
                           +

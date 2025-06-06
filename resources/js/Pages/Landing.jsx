@@ -94,26 +94,10 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
                                 <div className="flex gap-2">
                                     <Link
                                         href={`/customer/products/${product.id}`}
-                                        className="flex-1 flex items-center justify-center text-white bg-green-600 py-2 rounded-md hover:bg-green-700 text-sm transition-colors duration-200"
+                                        className="w-full flex items-center justify-center text-white bg-green-600 py-2 rounded-md hover:bg-green-700 text-sm transition-colors duration-200"
                                     >
                                         {t('product.viewDetails')}
                                     </Link>
-                                    <button
-                                        onClick={() => handleAddToCart(product)}
-                                        className="p-2 bg-yellow-500 rounded-md hover:bg-yellow-600 flex items-center justify-center transition-colors duration-200"
-                                        title={t('product.addToCart')}
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            stroke="currentColor"
-                                            className="w-5 h-5 text-white"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.837l.383 1.436m0 0L6.75 14.25a1.125 1.125 0 001.09.855h9.21a1.125 1.125 0 001.09-.855l1.386-6.36a.75.75 0 00-.728-.885H6.272m-.166 0L5.25 5.25m0 0H3m3.75 13.5a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm10.5 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-                                        </svg>
-                                    </button>
                                 </div>
                             </div>
                         </div>

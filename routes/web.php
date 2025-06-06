@@ -79,7 +79,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Admin-only
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/', fn () => Inertia::render('Admin/Dashboard'))->name('dashboard');
+        Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', UserController::class);
         Route::resource('products', AdminProductController::class);
@@ -97,11 +97,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/products/create', [VendorProductController::class, 'create'])->name('products.create');
         Route::post('/products', [VendorProductController::class, 'store'])->name('products.store');
         Route::get('/products/{product}', [VendorProductController::class, 'edit'])->name('products.edit');
+        Route::get('/products/{product}/edit', [VendorProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [VendorProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [VendorProductController::class, 'destroy'])->name('products.destroy');
         Route::get('/orders', [VendorOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [VendorOrderController::class, 'show'])->name('orders.show');
-        Route::post('/orders/{order}/status', [VendorOrderController::class, 'updateStatus'])->name('orders.status.update');
+        Route::patch('/orders/{order}', [VendorOrderController::class, 'update'])->name('orders.update');
         Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
     });
 

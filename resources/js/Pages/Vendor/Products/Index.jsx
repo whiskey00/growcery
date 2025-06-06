@@ -190,7 +190,7 @@ export default function Index({ products }) {
                                                     <div className="text-sm text-gray-900">₱{Number(product.price).toLocaleString()}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm text-gray-900">{product.stock}</div>
+                                                    <div className="text-sm text-gray-900">{product.quantity}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                     <Link
