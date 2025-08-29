@@ -97,7 +97,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/products/create', [VendorProductController::class, 'create'])->name('products.create');
         Route::post('/products', [VendorProductController::class, 'store'])->name('products.store');
         Route::get('/products/{product}', [VendorProductController::class, 'edit'])->name('products.edit');
-        Route::get('/products/{product}/edit', [VendorProductController::class, 'edit'])->name('products.edit');
+        Route::get('/products/{product}/edit', [VendorProductController::class, 'edit'])->name('products.edit.details');
         Route::put('/products/{product}', [VendorProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [VendorProductController::class, 'destroy'])->name('products.destroy');
         Route::get('/orders', [VendorOrderController::class, 'index'])->name('orders.index');
@@ -116,16 +116,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('customer.orders.show');
+        Route::get('/orders/{order}/buy-again', [OrderController::class, 'buyAgain'])->name('customer.orders.buy-again');
 
         // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile.view');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('customer.profile.edit');
+        Route::get('/profile/test', function() {
+            return \Inertia\Inertia::render('Customer/Profile/TestPage');
+        })->name('customer.profile.test');
         Route::put('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
 
         // Products & Cart
         Route::get('/products/{id}', [\App\Http\Controllers\Customer\ProductController::class, 'show'])->name('customer.products.show');
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
         Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
+
         Route::patch('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
         Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
 

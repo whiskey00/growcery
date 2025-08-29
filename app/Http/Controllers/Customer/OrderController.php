@@ -56,4 +56,23 @@ class OrderController extends Controller
             'order' => $order,
         ]);
     }
+
+    public function buyAgain(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Load the order with its products and vendor
+        $order->load([
+            'products' => function($query) {
+                $query->select('products.id', 'name', 'image', 'price', 'products.quantity as stock_quantity', 'status', 'options');
+            },
+            'vendor:id,name,full_name'
+        ]);
+
+        return Inertia::render('Customer/Orders/BuyAgain', [
+            'order' => $order,
+        ]);
+    }
 }

@@ -124,7 +124,7 @@ export default function Login({ status, canResetPassword }) {
                                         href={route('password.request')}
                                         className="text-sm font-medium text-green-600 hover:text-green-500"
                                     >
-                                        {t('auth.forgotPassword')}
+                                        Forgot Password?
                                     </Link>
                                 )}
                             </div>

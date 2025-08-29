@@ -42,8 +42,8 @@ export default function CustomerLayout({ children }) {
                             </button>
                         </div>
 
-                        {/* Logo */}
-                        <div className="flex-shrink-0 flex items-center">
+                        {/* Logo - Centered on mobile */}
+                        <div className="absolute left-1/2 transform -translate-x-1/2 md:relative md:left-auto md:transform-none flex-shrink-0 flex items-center">
                             <Link href="/" className="flex items-center">
                                 <img src="/images/white.png" alt="Growcery Logo" className="h-8 w-auto" />
                             </Link>
@@ -121,7 +121,7 @@ export default function CustomerLayout({ children }) {
                                             </Link>
                                             {auth.user.role !== 'vendor' && !auth.vendorApplication && (
                                                 <Link
-                                                    href="/customer/vendor-application"
+                                                    href="/customer/vendor-application/create"
                                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                 >
                                                     Become a Vendor
@@ -214,7 +214,7 @@ export default function CustomerLayout({ children }) {
                                     </Link>
                                     {auth.user.role !== 'vendor' && !auth.vendorApplication && (
                                         <Link
-                                            href="/customer/vendor-application"
+                                            href="/customer/vendor-application/create"
                                             className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                                         >
                                             Become a Vendor

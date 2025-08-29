@@ -29,6 +29,10 @@ export default function Orders() {
     return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  const handleBuyAgain = (orderId) => {
+    router.visit(`/customer/orders/${orderId}/buy-again`);
+  };
+
   return (
     <CustomerLayout>
       <div className="max-w-7xl mx-auto px-6 py-8 flex gap-6">
@@ -113,7 +117,10 @@ export default function Orders() {
                     >
                         View Details
                     </Link>
-                    <button className="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600">
+                    <button 
+                        onClick={() => handleBuyAgain(order.id)}
+                        className="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600"
+                    >
                         Buy Again
                     </button>
                     </div>

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Inertia\Inertia;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\File;
 
 class ProductController extends Controller
 {
@@ -50,9 +51,19 @@ class ProductController extends Controller
         $data['vendor_id'] = auth()->id();
         $data['options'] = $data['options'] ?? [];
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
-        }
+    // Handle image upload
+if ($request->hasFile('image')) {
+    $storedPath = $request->file('image')->store('products', 'public');
+
+    $source = storage_path('app/public/' . $storedPath);
+    $destination = base_path('../public_html/storage/' . $storedPath); // 🔥 FIXED
+
+    File::ensureDirectoryExists(dirname($destination));
+    File::copy($source, $destination);
+
+    $data['image'] = $storedPath;
+}
+
 
         Product::create($data);
 
@@ -92,9 +103,19 @@ public function update(Request $request, Product $product)
     $fields['options'] = is_string($options) ? json_decode($options, true) : $options ?? [];
 
     // Handle image upload
-    if ($request->hasFile('image')) {
-        $fields['image'] = $request->file('image')->store('products', 'public');
-    }
+if ($request->hasFile('image')) {
+    $storedPath = $request->file('image')->store('products', 'public');
+
+    $source = storage_path('app/public/' . $storedPath);
+    $destination = base_path('../public_html/storage/' . $storedPath); // 🔥 FIXED
+
+    File::ensureDirectoryExists(dirname($destination));
+    File::copy($source, $destination);
+
+    $data['image'] = $storedPath;
+}
+
+
 
     // Validate manually
     $validated = validator($fields, [

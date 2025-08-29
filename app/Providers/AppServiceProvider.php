@@ -32,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
                 ];
             },
         ]);
+    
+        // ✅ Tell Laravel where to find Vite's manifest
+        Vite::useBuildDirectory('build');
     }
+
 
 }

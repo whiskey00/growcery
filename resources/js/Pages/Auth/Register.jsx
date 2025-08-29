@@ -1,12 +1,10 @@
 import { useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useTranslation } from 'react-i18next';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '@/firebase';
 import axios from 'axios';
 
 export default function Register() {
-    const { t } = useTranslation();
     const { data, setData, post, processing, errors, reset } = useForm({
         first_name: '',
         last_name: '',
@@ -49,7 +47,7 @@ export default function Register() {
 
     return (
         <>
-            <Head title={t('auth.register')} />
+            <Head title="Register" />
 
             <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col items-center space-y-6 w-full max-w-md">
@@ -60,12 +58,12 @@ export default function Register() {
 
                     {/* Register box */}
                     <div className="bg-white w-full p-8 rounded-lg shadow-md border border-gray-200">
-                        <h1 className="text-2xl font-bold text-green-700 mb-6 text-center">{t('auth.register')}</h1>
+                        <h1 className="text-2xl font-bold text-green-700 mb-6 text-center">Create Account</h1>
 
                         <form onSubmit={submit} className="space-y-6">
                             <div>
                                 <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.firstName')}
+                                    First Name
                                 </label>
                                 <input
                                     id="first_name"
@@ -82,7 +80,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.lastName')}
+                                    Last Name
                                 </label>
                                 <input
                                     id="last_name"
@@ -99,7 +97,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.email')}
+                                    Email Address
                                 </label>
                                 <input
                                     id="email"
@@ -116,7 +114,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.password')}
+                                    Password
                                 </label>
                                 <input
                                     id="password"
@@ -133,7 +131,7 @@ export default function Register() {
 
                             <div>
                                 <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700">
-                                    {t('auth.confirmPassword')}
+                                    Confirm Password
                                 </label>
                                 <input
                                     id="password_confirmation"
@@ -154,7 +152,7 @@ export default function Register() {
                                     disabled={processing}
                                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                 >
-                                    {t('auth.register')}
+                                    {processing ? 'Creating Account...' : 'Create Account'}
                                 </button>
                             </div>
                         </form>
@@ -166,7 +164,7 @@ export default function Register() {
                                 </div>
                                 <div className="relative flex justify-center text-sm">
                                     <span className="px-2 bg-white text-gray-500">
-                                        {t('auth.orContinueWith')}
+                                        Or continue with
                                     </span>
                                 </div>
                             </div>
@@ -181,18 +179,18 @@ export default function Register() {
                                         src="https://www.svgrepo.com/show/475656/google-color.svg"
                                         alt="Google Logo"
                                     />
-                                    <span>{t('auth.continueWithGoogle')}</span>
+                                    <span>Continue with Google</span>
                                 </button>
                             </div>
                         </div>
 
                         <p className="mt-6 text-center text-sm text-gray-600">
-                            {t('auth.alreadyHaveAccount')}{' '}
+                            Already have an account?{' '}
                             <Link
                                 href={route('login')}
                                 className="font-medium text-green-600 hover:text-green-500"
                             >
-                                {t('auth.login')}
+                                Sign in
                             </Link>
                         </p>
                     </div>

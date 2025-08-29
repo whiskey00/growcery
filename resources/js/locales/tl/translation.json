@@ -207,7 +207,8 @@
       "viewAllReviews": "Tingnan lahat",
       "noReviewsYet": "Wala pang mga review",
       "recentOrders": "Mga Bagong Order",
-      "viewProduct": "Tingnan ang Produkto"
+      "viewProduct": "Tingnan ang Produkto",
+      "ratingDistribution": "Distribusyon ng Rating"
     }
   }
 } 

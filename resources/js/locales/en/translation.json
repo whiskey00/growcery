@@ -207,7 +207,8 @@
       "viewAllReviews": "View all",
       "noReviewsYet": "No reviews yet",
       "recentOrders": "Recent Orders",
-      "viewProduct": "View Product"
+      "viewProduct": "View Product",
+      "ratingDistribution": "Rating Distribution"
     }
   }
 } 

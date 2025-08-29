@@ -15,7 +15,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
-        return inertia('Auth/Login');
+        return inertia('Auth/Login', [
+            'canResetPassword' => true,
+        ]);
     }
 
     /**

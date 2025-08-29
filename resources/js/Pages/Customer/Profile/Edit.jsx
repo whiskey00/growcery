@@ -1,6 +1,6 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { useForm } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { router } from '@inertiajs/react';
 
 import {
@@ -9,6 +9,14 @@ import {
   getCityMunByProvince,
   getBarangayByMun,
 } from 'phil-reg-prov-mun-brgy';
+
+  const FormField = ({ label, children, error }) => (
+    <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
+      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      {children}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+  );
 
 export default function Edit({ user }) {
   const { data, setData, put, processing, errors } = useForm({
@@ -25,28 +33,60 @@ export default function Edit({ user }) {
   const [provinceList, setProvinceList] = useState([]);
   const [cityList, setCityList] = useState([]);
   const [barangayList, setBarangayList] = useState([]);
+  const isInitialLoad = useRef(true);
+
+  // Initialize dropdown lists on component mount
+  useEffect(() => {
+    if (isInitialLoad.current) {
+      if (data.region_code) {
+        setProvinceList(getProvincesByRegion(data.region_code));
+      }
+      if (data.province_code) {
+        setCityList(getCityMunByProvince(data.province_code));
+      }
+      if (data.city_code) {
+        setBarangayList(getBarangayByMun(data.city_code));
+      }
+      isInitialLoad.current = false;
+    }
+  }, []);
 
   useEffect(() => {
-    if (data.region_code) {
+    if (!isInitialLoad.current && data.region_code) {
       setProvinceList(getProvincesByRegion(data.region_code));
-      setData('province_code', '');
-      setCityList([]);
-      setBarangayList([]);
+      // Only reset if province is not valid for current region
+      const currentProvinces = getProvincesByRegion(data.region_code);
+      if (data.province_code && !currentProvinces.find(p => p.prov_code === data.province_code)) {
+        setData('province_code', '');
+        setData('city_code', '');
+        setData('barangay', '');
+        setCityList([]);
+        setBarangayList([]);
+      }
     }
   }, [data.region_code]);
 
   useEffect(() => {
-    if (data.province_code) {
+    if (!isInitialLoad.current && data.province_code) {
       setCityList(getCityMunByProvince(data.province_code));
-      setData('city_code', '');
-      setBarangayList([]);
+      // Only reset if city is not valid for current province
+      const currentCities = getCityMunByProvince(data.province_code);
+      if (data.city_code && !currentCities.find(c => c.mun_code === data.city_code)) {
+        setData('city_code', '');
+        setData('barangay', '');
+        setBarangayList([]);
+      }
     }
   }, [data.province_code]);
 
   useEffect(() => {
-    if (data.city_code) {
+    if (!isInitialLoad.current && data.city_code) {
       setBarangayList(getBarangayByMun(data.city_code));
-      setData('barangay', '');
+      // Only reset if barangay is not valid for current city
+      const currentBarangays = getBarangayByMun(data.city_code);
+      if (data.barangay && !currentBarangays.find(b => b.brgy_name === data.barangay)) {
+        setData('barangay', '');
+      }
     }
   }, [data.city_code]);
 
@@ -70,14 +110,6 @@ export default function Edit({ user }) {
       },
     });
   };
-
-  const FormField = ({ label, children, error }) => (
-    <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
-      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-      {children}
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-    </div>
-  );
 
   const inputClasses = "w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500";
   const selectClasses = "w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500";
