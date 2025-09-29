@@ -116,13 +116,38 @@ export default function Index({ products }) {
                                                 <img
                                                     src={`/storage/${product.image}`}
                                                     alt={product.name}
-                                                    className="h-12 w-12 rounded object-cover"
+                                                    className={`h-12 w-12 rounded object-cover ${product.quantity === 0 ? 'grayscale opacity-60' : ''}`}
                                                 />
                                             </div>
                                             <div className="ml-4 flex-1">
                                                 <div className="flex items-center justify-between">
-                                                    <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                                                    <div className="text-sm text-gray-500">₱{Number(product.price).toLocaleString()}</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                                                        {product.quantity === 0 && (
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                                Out of Stock
+                                                            </span>
+                                                        )}
+                                                        {product.quantity > 0 && product.quantity <= 5 && (
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                                Low Stock
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col items-end">
+                                                        <div className="text-sm text-gray-500">₱{Number(product.price).toLocaleString()}</div>
+                                                        <div className="flex items-center gap-1 mt-1">
+                                                            <span className={`text-xs font-medium ${product.quantity === 0 ? 'text-red-600' : product.quantity <= 5 ? 'text-orange-600' : 'text-gray-600'}`}>
+                                                                Stock: {product.quantity}
+                                                            </span>
+                                                            {product.quantity === 0 && (
+                                                                <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                                                            )}
+                                                            {product.quantity > 0 && product.quantity <= 5 && (
+                                                                <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div className="mt-2 flex justify-end space-x-3">
                                                     <Link
@@ -178,11 +203,23 @@ export default function Index({ products }) {
                                                             <img
                                                                 src={`/storage/${product.image}`}
                                                                 alt={product.name}
-                                                                className="h-10 w-10 rounded object-cover"
+                                                                className={`h-10 w-10 rounded object-cover ${product.quantity === 0 ? 'grayscale opacity-60' : ''}`}
                                                             />
                                                         </div>
                                                         <div className="ml-4">
-                                                            <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                                                                {product.quantity === 0 && (
+                                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                                        Out of Stock
+                                                                    </span>
+                                                                )}
+                                                                {product.quantity > 0 && product.quantity <= 5 && (
+                                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                                        Low Stock
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -190,7 +227,17 @@ export default function Index({ products }) {
                                                     <div className="text-sm text-gray-900">₱{Number(product.price).toLocaleString()}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm text-gray-900">{product.quantity}</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`text-sm font-medium ${product.quantity === 0 ? 'text-red-600' : product.quantity <= 5 ? 'text-orange-600' : 'text-gray-900'}`}>
+                                                            {product.quantity}
+                                                        </div>
+                                                        {product.quantity === 0 && (
+                                                            <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                                                        )}
+                                                        {product.quantity > 0 && product.quantity <= 5 && (
+                                                            <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                     <Link

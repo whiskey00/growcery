@@ -3,6 +3,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import axios from 'axios';
+// Laravel Echo and Pusher removed - using Ably Chat SDK instead
 import './i18n'; // Import i18n configuration
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -12,6 +13,8 @@ axios.defaults.withCredentials = true;
 axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
 axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 
+// Laravel Echo configuration removed - using Ably Chat SDK instead
+
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
@@ -20,6 +23,8 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.jsx')
         ),
     setup({ el, App, props }) {
+        // Laravel Echo is now initialized in bootstrap.js
+        
         const root = createRoot(el);
         root.render(<App {...props} />);
     },

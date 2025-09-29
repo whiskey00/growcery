@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->hasMany(Product::class, 'vendor_id');
     }
 
+    public function vendorApplication()
+    {
+        return $this->hasOne(VendorApplication::class);
+    }
+
     public function getAddressAttribute()
     {
         return $this->shipping_address;

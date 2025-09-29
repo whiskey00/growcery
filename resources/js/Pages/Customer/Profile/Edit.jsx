@@ -19,6 +19,10 @@ import {
   );
 
 export default function Edit({ user }) {
+  // Get return URL from query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const returnUrl = urlParams.get('return') || '/customer/profile';
+  
   const { data, setData, put, processing, errors } = useForm({
     full_name: user.full_name || '',
     mobile_number: user.mobile_number || '',
@@ -106,7 +110,7 @@ export default function Edit({ user }) {
     }, {
       onSuccess: () => {
         alert('✅ Profile updated successfully!');
-        router.visit('/customer/profile');
+        router.visit(returnUrl);
       },
     });
   };
@@ -248,7 +252,7 @@ export default function Edit({ user }) {
           {/* Action Buttons */}
           <div className="flex justify-end space-x-4">
             <a
-              href="/customer/profile"
+              href={returnUrl}
               className="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Cancel

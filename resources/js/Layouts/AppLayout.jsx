@@ -1,5 +1,4 @@
 import { Head, usePage } from '@inertiajs/react';
-import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 
 export default function AppLayout({ title, children }) {
@@ -20,10 +19,7 @@ export default function AppLayout({ title, children }) {
                     {children}
                 </main>
 
-                {/* Chat Widget */}
-                {auth.user && ['customer', 'vendor'].includes(auth.user.role) && (
-                    <FloatingChatWidget />
-                )}
+                {/* Chat widget removed */}
             </div>
         </>
     );

@@ -5,7 +5,7 @@ import useCart from '@/Stores/useCart';
 import ReviewList from '@/Components/ReviewList';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
-import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
+import Chat from '@/Components/Chat/Chat';
 import { useTranslation } from 'react-i18next';
 
 export default function Show() {
@@ -62,21 +62,7 @@ export default function Show() {
   };
 
   const handleMessageVendor = () => {
-    // Send the initial message using Inertia
-    router.post('/messages', {
-      receiver_id: product.vendor_id,
-      message_text: `Hi, I'm interested in your product: ${product.name}`,
-      product_id: product.id
-    }, {
-      preserveScroll: true,
-      onSuccess: () => {
-        // Show the chat drawer
-        setShowChat(true);
-      },
-      onError: (errors) => {
-        console.error('Failed to send message:', errors);
-      }
-    });
+    setShowChat(true);
   };
 
   return (
@@ -358,8 +344,18 @@ export default function Show() {
         </div>
       </div>
 
-      {/* Add FloatingChatWidget */}
-      <FloatingChatWidget key={showChat ? 'open' : 'closed'} initiallyOpen={showChat} />
+      {/* Chat Modal */}
+      {showChat && auth.user && auth.user.role === 'customer' && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md h-96 bg-white rounded-lg shadow-xl">
+            <Chat
+              vendorId={product.vendor_id}
+              customerId={auth.user.id}
+              onClose={() => setShowChat(false)}
+            />
+          </div>
+        </div>
+      )}
     </CustomerLayout>
   );
 }

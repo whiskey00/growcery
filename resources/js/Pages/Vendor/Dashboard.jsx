@@ -150,7 +150,6 @@ export default function Dashboard({
                             <div className="sm:ml-4">
                                 <h2 className="text-gray-500 text-xs sm:text-sm font-medium">Total Products</h2>
                                 <p className="text-lg sm:text-2xl font-semibold text-gray-900">{totalProducts}</p>
-                                <p className="text-xs text-indigo-600 mt-1">{activeProducts} active</p>
                             </div>
                         </div>
                         <div className="mt-auto pt-3 sm:pt-4">

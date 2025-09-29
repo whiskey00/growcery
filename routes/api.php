@@ -2,9 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\ChatController;
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/messages/conversations', [MessageController::class, 'getConversations']);
-    Route::get('/messages/conversations/{conversation}', [MessageController::class, 'getConversation']);
-}); 
+// Test route
+Route::get('/test', function () {
+    return response()->json(['message' => 'API routes working']);
+});
+
+// Chat routes moved to routes/web.php for session auth compatibility 

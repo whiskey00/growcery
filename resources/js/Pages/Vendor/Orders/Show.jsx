@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import VendorLayout from '@/Layouts/VendorLayout';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
+import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import Chat from '@/Components/Chat/Chat';
 
 export default function Show({ order }) {
   const { t } = useTranslation();
+  const { auth } = usePage().props;
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
+  const [showChat, setShowChat] = useState(false);
   const { data, setData, patch, processing } = useForm({
     status: order.status
   });
@@ -76,13 +80,13 @@ export default function Show({ order }) {
             // Mobile Card View
             <div className="space-y-3">
               {order.products.map((product) => (
-                <div key={product.id} className="bg-gray-50 p-4 rounded">
+                <div key={`${product.id}-${product.pivot.option_label}`} className="bg-gray-50 p-4 rounded">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">{product.name}</h3>
-                    <span className="text-sm">₱{product.price}</span>
+                    <span className="text-sm">₱{Number(product.pivot.option_price).toLocaleString()}</span>
                   </div>
                   <div className="text-sm text-gray-600">
-                    {t('vendor.orders.quantity')}: {product.pivot.quantity}
+                    {t('vendor.orders.quantity')}: {product.pivot.quantity} • Option: {product.pivot.option_label}
                   </div>
                 </div>
               ))}
@@ -97,6 +101,9 @@ export default function Show({ order }) {
                       {t('vendor.products.name')}
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Option
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('vendor.products.price')}
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -109,25 +116,28 @@ export default function Show({ order }) {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {order.products.map((product) => (
-                    <tr key={product.id}>
+                    <tr key={`${product.id}-${product.pivot.option_label}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{product.name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">₱{Number(product.price).toLocaleString()}</div>
+                        <div className="text-sm text-gray-900">{product.pivot.option_label}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">₱{Number(product.pivot.option_price).toLocaleString()}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{product.pivot.quantity}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="text-sm font-medium text-gray-900">
-                          ₱{Number(product.price * product.pivot.quantity).toLocaleString()}
+                          ₱{Number(product.pivot.option_price * product.pivot.quantity).toLocaleString()}
                         </div>
                       </td>
                     </tr>
                   ))}
                   <tr className="bg-gray-50">
-                    <td colSpan="3" className="px-6 py-4 text-right font-medium">
+                    <td colSpan="4" className="px-6 py-4 text-right font-medium">
                       {t('vendor.orders.total')}:
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -175,6 +185,17 @@ export default function Show({ order }) {
           </div>
         </form>
 
+        {/* Message Customer Button */}
+        <div className="mt-6 mb-4">
+          <button
+            onClick={() => setShowChat(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
+            Message Customer
+          </button>
+        </div>
+
         <div>
           <Link
             href="/vendor/orders"
@@ -186,6 +207,19 @@ export default function Show({ order }) {
             Back to Orders
           </Link>
         </div>
+
+        {/* Chat Modal */}
+        {showChat && auth.user && order.user && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-md h-96 bg-white rounded-lg shadow-xl">
+              <Chat
+                vendorId={auth.user.id}
+                customerId={order.user.id}
+                onClose={() => setShowChat(false)}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </VendorLayout>
   );

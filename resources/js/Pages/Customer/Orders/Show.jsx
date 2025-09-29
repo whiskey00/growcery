@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { usePage, Link } from '@inertiajs/react';
 import ReviewForm from '@/Components/ReviewForm';
 import { Head } from '@inertiajs/react';
 import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import Chat from '@/Components/Chat/Chat';
 
 export default function Show() {
-  const { order } = usePage().props;
+  const { order, auth } = usePage().props;
+  const [showChat, setShowChat] = useState(false);
   console.log('Order data:', order);
 
   const formatStatus = (status) => {
@@ -101,16 +103,13 @@ export default function Show() {
         </div>
 
         <div className="mt-4">
-          <Link
-            href={route('messages.new', { 
-              receiver_id: order.vendor_id,
-              order_id: order.id 
-            })}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          <button
+            onClick={() => setShowChat(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             <ChatBubbleLeftIcon className="h-5 w-5 mr-2" />
             Message Vendor
-          </Link>
+          </button>
         </div>
 
         {order.status === 'completed' && (
@@ -161,6 +160,19 @@ export default function Show() {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Chat Modal */}
+        {showChat && auth.user && order.vendor && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-md h-96 bg-white rounded-lg shadow-xl">
+              <Chat
+                vendorId={order.vendor.id}
+                customerId={auth.user.id}
+                onClose={() => setShowChat(false)}
+              />
             </div>
           </div>
         )}

@@ -16,16 +16,28 @@ use App\Http\Controllers\Customer\CustomerDashboardController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Customer\QRPhPaymentController;
 use App\Http\Controllers\Customer\VendorController;
-use App\Http\Controllers\MessageController;
-use App\Http\Controllers\Api\MessageController as ApiMessageController;
+use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Vendor\ReviewController;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Public route
+// Public routes
 Route::get('/', [LandingPageController::class, 'index']);
+
+// Legal pages - accessible to everyone
+Route::get('/faq', function () {
+    return Inertia::render('Legal/FAQ');
+})->name('legal.faq');
+
+Route::get('/privacy', function () {
+    return Inertia::render('Legal/Privacy');
+})->name('legal.privacy');
+
+Route::get('/terms', function () {
+    return Inertia::render('Legal/Terms');
+})->name('legal.terms');
 
 // Global dashboard redirect based on role
 Route::get('/dashboard', function () {
@@ -170,11 +182,67 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/vendor/switch-view', [App\Http\Controllers\Vendor\RoleSwitchController::class, 'switch'])
         ->name('vendor.switch-view');
 
-    // Message routes
-    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
-    Route::get('/messages/new', [MessageController::class, 'show'])->name('messages.new');
-    Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
-    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+    // Chat API routes (moved from api.php for session auth compatibility)
+    Route::post('/api/chat/room', [App\Http\Controllers\Api\ChatController::class, 'getRoom']);
+    Route::get('/api/chat/rooms', [App\Http\Controllers\Api\ChatController::class, 'getRooms']);
+    Route::get('/api/chat/rooms/{roomId}/messages', [App\Http\Controllers\Api\ChatController::class, 'getMessages']);
+    Route::post('/api/chat/send', [App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
+    Route::post('/api/chat/rooms/{roomId}/read', [App\Http\Controllers\Api\ChatController::class, 'markAsRead']);
+    
+    // Broadcasting authentication (for private channels)
+    Route::post('/api/broadcasting/auth', function (Illuminate\Http\Request $request) {
+        return \Illuminate\Support\Facades\Broadcast::auth($request);
+    });
+    
+    // Debug route to check chat system status
+    Route::get('/api/chat/debug', function () {
+        try {
+            $roomsCount = \App\Models\Room::count();
+            $messagesCount = \App\Models\Message::count();
+            $usersCount = \App\Models\User::count();
+            
+            // Try to find room 2
+            $room2 = \App\Models\Room::find(2);
+            
+            return response()->json([
+                'rooms_count' => $roomsCount,
+                'messages_count' => $messagesCount,
+                'users_count' => $usersCount,
+                'room_2_exists' => $room2 ? true : false,
+                'room_2_data' => $room2,
+                'auth_user' => auth()->user(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+    });
+    
+    // Simple test for rooms endpoint
+    Route::get('/api/chat/test-rooms', function () {
+        try {
+            $user = auth()->user();
+            $rooms = \App\Models\Room::where(function ($query) use ($user) {
+                $query->where('vendor_id', $user->id)
+                      ->orWhere('customer_id', $user->id);
+            })->get();
+            
+            return response()->json([
+                'user_id' => $user->id,
+                'rooms_count' => $rooms->count(),
+                'rooms' => $rooms->toArray(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+    });
 });
 
 // Admin vendor application routes
@@ -193,10 +261,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         ->name('admin.vendor-applications.document');
 });
 
-// Message API routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/api/messages/conversations', [ApiMessageController::class, 'getConversations']);
-    Route::get('/api/messages/conversations/{conversation}', [ApiMessageController::class, 'getConversation']);
-});
+// Message API routes removed - chat system removed
 
 require __DIR__.'/auth.php';

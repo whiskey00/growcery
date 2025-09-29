@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import ChatWidget from '@/Components/Chat/ChatWidget';
 
 export default function CustomerLayout({ children }) {
     const { auth, cartItems } = usePage().props;
@@ -255,8 +255,8 @@ export default function CustomerLayout({ children }) {
                 {children}
             </main>
 
-            {/* Chat Widget */}
-            {auth.user && <FloatingChatWidget />}
+            {/* Floating Chat Widget */}
+            {auth.user && <ChatWidget />}
 
             {/* Footer */}
             <footer className="bg-white border-t">

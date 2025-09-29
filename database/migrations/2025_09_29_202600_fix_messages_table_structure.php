@@ -6,22 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
+        // Drop existing messages table if it exists (from old chat system)
+        Schema::dropIfExists('messages');
+        
+        // Create new messages table with correct structure
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('conversation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('room_id')->constrained('rooms')->onDelete('cascade');
             $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade');
-            $table->text('message_text');
-            $table->timestamp('read_by_receiver_at')->nullable();
+            $table->text('message');
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+            
+            // Index for faster queries
+            $table->index(['room_id', 'created_at']);
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('messages');
     }
-}; 
+};

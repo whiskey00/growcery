@@ -2,32 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Message extends Model
 {
-    use HasFactory, SoftDeletes;
-
     protected $fillable = [
-        'conversation_id',
+        'room_id',
         'sender_id',
         'receiver_id',
-        'message_text',
-        'read_by_receiver_at',
+        'message',
+        'read_at',
     ];
 
     protected $casts = [
-        'read_by_receiver_at' => 'datetime',
+        'read_at' => 'datetime',
     ];
 
-    protected $with = ['sender'];
-
-    public function conversation(): BelongsTo
+    public function room(): BelongsTo
     {
-        return $this->belongsTo(Conversation::class);
+        return $this->belongsTo(Room::class);
     }
 
     public function sender(): BelongsTo
@@ -40,20 +34,19 @@ class Message extends Model
         return $this->belongsTo(User::class, 'receiver_id');
     }
 
-    public function markAsRead()
+    /**
+     * Mark message as read
+     */
+    public function markAsRead(): void
     {
-        if (!$this->read_by_receiver_at) {
-            $this->update(['read_by_receiver_at' => now()]);
-        }
+        $this->update(['read_at' => now()]);
     }
 
-    public function isUnread()
+    /**
+     * Check if message is read
+     */
+    public function isRead(): bool
     {
-        return is_null($this->read_by_receiver_at);
+        return !is_null($this->read_at);
     }
-
-    public function isSentBy(User $user)
-    {
-        return $this->sender_id === $user->id;
-    }
-} 
+}

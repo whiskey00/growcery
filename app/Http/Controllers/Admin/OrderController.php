@@ -29,6 +29,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
+        // Load the order with all relationships
         $order->load([
             'products' => function ($q) {
                 $q->select('products.id', 'name', 'price')->withPivot('quantity', 'option_label', 'option_price');
@@ -36,6 +37,12 @@ class OrderController extends Controller
             'vendor',
             'user'
         ]);
+
+        // Get the business name manually
+        $businessName = $order->vendor->vendorApplication?->business_name ?? 'N/A';
+
+        // Add business name to the order data
+        $order->business_name = $businessName;
 
         return Inertia::render('Admin/Orders/Show', [
             'order' => $order

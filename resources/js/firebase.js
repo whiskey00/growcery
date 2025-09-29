@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDA_HCqMgaOkgFhSbxTdPSwR3tcEDtXNjQ",
-  authDomain: "growcery-acef4.firebaseapp.com",
-  projectId: "growcery-acef4",
-  storageBucket: "growcery-acef4.appspot.com",
-  messagingSenderId: "799938196330",
-  appId: "1:799938196330:web:085dfcf195a405f622eb13",
-  measurementId: "G-CT3PHMSTHE",
+  apiKey: "AIzaSyBojADIPdNkOODjOlIq7lZko9YkEedM2UQ",
+  authDomain: "growceryv2.firebaseapp.com",
+  projectId: "growceryv2",
+  storageBucket: "growceryv2.firebasestorage.app",
+  messagingSenderId: "714503942751",
+  appId: "1:714503942751:web:5031ad688fa516cbbce1ea",
+  measurementId: "G-HPCE0LKMJG",
 };
 
 const app = initializeApp(firebaseConfig);

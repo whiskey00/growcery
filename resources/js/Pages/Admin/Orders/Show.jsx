@@ -49,7 +49,7 @@ export default function Show({ order }) {
             <div className="space-y-2 text-sm">
               <p><span className="font-medium">Name:</span> {order.vendor?.name || 'N/A'}</p>
               <p><span className="font-medium">Email:</span> {order.vendor?.email || 'N/A'}</p>
-              <p><span className="font-medium">Business:</span> {order.vendor?.business_name || 'N/A'}</p>
+                <p><span className="font-medium">Business:</span> {order.business_name || 'N/A'}</p>
             </div>
           </div>
 
@@ -69,14 +69,17 @@ export default function Show({ order }) {
             // Mobile Card View
             <div className="space-y-3">
               {order.products.map((product) => (
-                <div key={product.id} className="bg-gray-50 p-4 rounded">
+                <div key={`${product.id}-${product.pivot.option_label}`} className="bg-gray-50 p-4 rounded">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">{product.name}</h3>
-                    <span className="text-sm">₱{product.price}</span>
+                    <span className="text-sm">₱{Number(product.pivot.option_price).toLocaleString()}</span>
+                  </div>
+                  <div className="text-sm text-gray-600 mb-2">
+                    Option: {product.pivot.option_label}
                   </div>
                   <div className="flex items-center justify-between text-sm text-gray-600">
                     <span>Quantity: {product.pivot.quantity}</span>
-                    <span>Subtotal: ₱{(product.price * product.pivot.quantity).toFixed(2)}</span>
+                    <span>Subtotal: ₱{Number(product.pivot.option_price * product.pivot.quantity).toLocaleString()}</span>
                   </div>
                 </div>
               ))}
@@ -88,6 +91,7 @@ export default function Show({ order }) {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="px-4 py-2 text-left">Name</th>
+                    <th className="px-4 py-2 text-left">Option</th>
                     <th className="px-4 py-2 text-left">Price</th>
                     <th className="px-4 py-2 text-left">Qty</th>
                     <th className="px-4 py-2 text-left">Subtotal</th>
@@ -95,12 +99,13 @@ export default function Show({ order }) {
                 </thead>
                 <tbody>
                   {order.products.map((product) => (
-                    <tr key={product.id} className="border-t">
+                    <tr key={`${product.id}-${product.pivot.option_label}`} className="border-t">
                       <td className="px-4 py-2">{product.name}</td>
-                      <td className="px-4 py-2">₱{product.price}</td>
+                      <td className="px-4 py-2">{product.pivot.option_label}</td>
+                      <td className="px-4 py-2">₱{Number(product.pivot.option_price).toLocaleString()}</td>
                       <td className="px-4 py-2">{product.pivot.quantity}</td>
                       <td className="px-4 py-2">
-                        ₱{(product.price * product.pivot.quantity).toFixed(2)}
+                        ₱{Number(product.pivot.option_price * product.pivot.quantity).toLocaleString()}
                       </td>
                     </tr>
                   ))}

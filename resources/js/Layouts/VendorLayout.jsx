@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { HomeIcon } from '@heroicons/react/24/outline';
-import FloatingChatWidget from '@/Components/Chat/FloatingChatWidget';
+import ChatWidget from '@/Components/Chat/ChatWidget';
 
 const VendorLayout = ({ children }) => {
     const { post } = useForm();
-    const { actingAs, auth } = usePage().props;
+    const { actingAs, auth, vendorOrderCounts } = usePage().props;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleViewSwitch = () => {
@@ -53,7 +53,21 @@ const VendorLayout = ({ children }) => {
                         <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
-                        Orders
+                        <span className="flex-1">Orders</span>
+                        {vendorOrderCounts && (vendorOrderCounts.to_pay > 0 || vendorOrderCounts.to_ship > 0) && (
+                            <div className="flex items-center gap-1 ml-2">
+                                {vendorOrderCounts.to_pay > 0 && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        {vendorOrderCounts.to_pay}
+                                    </span>
+                                )}
+                                {vendorOrderCounts.to_ship > 0 && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {vendorOrderCounts.to_ship}
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </Link>
 
                     <Link 
@@ -164,7 +178,21 @@ const VendorLayout = ({ children }) => {
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
-                                Orders
+                                <span className="flex-1">Orders</span>
+                                {vendorOrderCounts && (vendorOrderCounts.to_pay > 0 || vendorOrderCounts.to_ship > 0) && (
+                                    <div className="flex flex-col gap-1 ml-2">
+                                        {vendorOrderCounts.to_pay > 0 && (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                {vendorOrderCounts.to_pay}
+                                            </span>
+                                        )}
+                                        {vendorOrderCounts.to_ship > 0 && (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {vendorOrderCounts.to_ship}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </Link>
 
                             <Link 
@@ -253,8 +281,8 @@ const VendorLayout = ({ children }) => {
                 </main>
             </div>
 
-            {/* Add FloatingChatWidget */}
-            <FloatingChatWidget />
+            {/* Floating Chat Widget */}
+            {auth.user && <ChatWidget />}
         </div>
     );
 };

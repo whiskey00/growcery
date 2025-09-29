@@ -43,7 +43,7 @@ class OrderController extends Controller
 
         $order->load([
             'products' => function ($q) {
-                $q->select('products.id', 'name', 'price')->withPivot('quantity');
+                $q->select('products.id', 'name', 'price')->withPivot('quantity', 'option_label', 'option_price');
             },
             'user:id,full_name,mobile_number' // ✅ Load only needed user fields
         ]);

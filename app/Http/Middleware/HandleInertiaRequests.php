@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\CartItem;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Illuminate\Support\Facades\App;
@@ -39,6 +40,9 @@ class HandleInertiaRequests extends Middleware
     {
         // Get cart items for customers
         $cartItems = $this->getCartItems($request);
+        
+        // Get vendor order counts
+        $vendorOrderCounts = $this->getVendorOrderCounts($request);
 
         return array_merge(parent::share($request), [
             'csrf_token' => csrf_token(),
@@ -58,6 +62,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
             ],
             'cartItems' => $cartItems,
+            'vendorOrderCounts' => $vendorOrderCounts,
             'translations' => $this->getTranslations(),
         ]);
     }
@@ -113,5 +118,33 @@ class HandleInertiaRequests extends Middleware
                     ],
                 ];
             });
+    }
+
+    /**
+     * Get order counts by status for vendors.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    protected function getVendorOrderCounts($request)
+    {
+        $user = $request->user();
+        if (!$user || $user->role !== 'vendor') {
+            return [];
+        }
+
+        $orderCounts = Order::where('vendor_id', $user->id)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        return [
+            'to_pay' => $orderCounts['to_pay'] ?? 0,
+            'to_ship' => $orderCounts['to_ship'] ?? 0,
+            'to_receive' => $orderCounts['to_receive'] ?? 0,
+            'completed' => $orderCounts['completed'] ?? 0,
+            'cancelled' => $orderCounts['cancelled'] ?? 0,
+        ];
     }
 }
