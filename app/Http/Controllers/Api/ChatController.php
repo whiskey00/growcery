@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\Room;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -103,6 +104,14 @@ class ChatController extends Controller
                     'sender_id' => $message->sender_id,
                     'receiver_id' => $message->receiver_id,
                     'message' => $message->message,
+                    'type' => $message->type,
+                    'attachment_path' => $message->attachment_path,
+                    'attachment_url' => $message->attachment_url,
+                    'mime' => $message->mime,
+                    'bytes' => $message->bytes,
+                    'width' => $message->width,
+                    'height' => $message->height,
+                    'formatted_size' => $message->formatted_size,
                     'read_at' => $message->read_at?->toIso8601String(),
                     'created_at' => $message->created_at->toIso8601String(),
                     'sender' => $message->sender->only(['id', 'name']),
@@ -131,7 +140,8 @@ class ChatController extends Controller
             $validated = $request->validate([
                 'room_id' => 'required|exists:rooms,id',
                 'receiver_id' => 'required|exists:users,id',
-                'message' => 'required|string|max:1000',
+                'message' => 'nullable|string|max:2000',
+                'image' => 'nullable|file|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:5120', // 5MB
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in sendMessage: ' . $e->getMessage());
@@ -156,13 +166,47 @@ class ChatController extends Controller
             return response()->json(['error' => 'Invalid receiver'], 400);
         }
 
-        // Create the message
-        $message = Message::create([
+        // Prepare message data
+        $messageData = [
             'room_id' => $validated['room_id'],
             'sender_id' => Auth::id(),
             'receiver_id' => $receiverId,
-            'message' => $validated['message'],
-        ]);
+            'message' => $validated['message'] ?? ($request->hasFile('image') ? 'Attachment' : null),
+            'type' => $request->hasFile('image') ? 'image' : 'text',
+        ];
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $path = $file->store("chat/rooms/{$validated['room_id']}", 'public');
+            
+            // Hostinger-specific file handling - copy to public_html/storage
+            // Only do this if we're on Hostinger (check if public_html directory exists)
+            if (is_dir(base_path('../public_html'))) {
+                $source = storage_path('app/public/' . $path);
+                $destination = base_path('../public_html/storage/' . $path);
+                
+                File::ensureDirectoryExists(dirname($destination));
+                File::copy($source, $destination);
+            }
+            
+            $messageData['attachment_path'] = $path;
+            $messageData['attachment_url'] = asset("storage/{$path}");
+            $messageData['mime'] = $file->getMimeType();
+            $messageData['bytes'] = $file->getSize();
+            
+            // Get image dimensions if it's an image
+            if (str_starts_with($file->getMimeType(), 'image/')) {
+                $imageInfo = getimagesize($file->getPathname());
+                if ($imageInfo) {
+                    $messageData['width'] = $imageInfo[0];
+                    $messageData['height'] = $imageInfo[1];
+                }
+            }
+        }
+
+        // Create the message
+        $message = Message::create($messageData);
 
         // Update room's last message time
         $room->update(['last_message_at' => now()]);
@@ -192,6 +236,13 @@ class ChatController extends Controller
                 'sender_id' => $message->sender_id,
                 'receiver_id' => $message->receiver_id,
                 'message' => $message->message,
+                'type' => $message->type,
+                'attachment_path' => $message->attachment_path,
+                'attachment_url' => $message->attachment_url,
+                'mime' => $message->mime,
+                'bytes' => $message->bytes,
+                'width' => $message->width,
+                'height' => $message->height,
                 'read_at' => $message->read_at?->toIso8601String(),
                 'created_at' => $message->created_at->toIso8601String(),
                 'sender' => $message->sender->only(['id', 'name']),

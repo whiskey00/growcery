@@ -3,9 +3,9 @@ import { usePage } from '@inertiajs/react';
 import Chat from './Chat';
 import { chatClient, getRoomId } from '@/Services/ablyChat';
 
-export default function ChatWidget({ className = '' }) {
+export default function ChatWidget({ className = '', autoOpen = false, targetVendorId = null }) {
     const { auth } = usePage().props;
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(autoOpen);
     const [showInbox, setShowInbox] = useState(true);
     const [selectedChat, setSelectedChat] = useState(null);
     const [chatRooms, setChatRooms] = useState([]);
@@ -17,6 +17,43 @@ export default function ChatWidget({ className = '' }) {
             loadChatRooms();
         }
     }, [isOpen, showInbox]);
+
+    // Auto-select target vendor if provided
+    useEffect(() => {
+        if (targetVendorId && chatRooms.length > 0) {
+            const targetRoom = chatRooms.find(room => 
+                room.vendorId === targetVendorId || room.customerId === targetVendorId
+            );
+            if (targetRoom) {
+                selectChat(targetRoom);
+            }
+        }
+    }, [targetVendorId, chatRooms]);
+
+    // Listen for custom events to open chat widget
+    useEffect(() => {
+        const handleOpenChatWidget = (event) => {
+            const { vendorId } = event.detail;
+            setIsOpen(true);
+            setShowInbox(true);
+            // Store the target vendor ID for when rooms are loaded
+            window.targetVendorId = vendorId;
+        };
+
+        window.addEventListener('openChatWidget', handleOpenChatWidget);
+        return () => window.removeEventListener('openChatWidget', handleOpenChatWidget);
+    }, []);
+
+    // Check URL parameters for chat_vendor
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatVendor = urlParams.get('chat_vendor');
+        if (chatVendor) {
+            setIsOpen(true);
+            setShowInbox(true);
+            window.targetVendorId = parseInt(chatVendor);
+        }
+    }, []);
 
     const loadChatRooms = async () => {
         setIsLoading(true);
@@ -56,6 +93,18 @@ export default function ChatWidget({ className = '' }) {
                 });
                 
                 setChatRooms(rooms);
+                
+                // Auto-select target vendor if specified
+                if (window.targetVendorId) {
+                    const targetRoom = rooms.find(room => 
+                        room.vendorId === window.targetVendorId || room.customerId === window.targetVendorId
+                    );
+                    if (targetRoom) {
+                        selectChat(targetRoom);
+                        // Clear the target vendor ID
+                        window.targetVendorId = null;
+                    }
+                }
             } else {
                 // Fallback to sample data
                 const rooms = [];
@@ -87,6 +136,18 @@ export default function ChatWidget({ className = '' }) {
                 }
                 
                 setChatRooms(rooms);
+                
+                // Auto-select target vendor if specified
+                if (window.targetVendorId) {
+                    const targetRoom = rooms.find(room => 
+                        room.vendorId === window.targetVendorId || room.customerId === window.targetVendorId
+                    );
+                    if (targetRoom) {
+                        selectChat(targetRoom);
+                        // Clear the target vendor ID
+                        window.targetVendorId = null;
+                    }
+                }
             }
         } catch (error) {
             console.error('Failed to load chat rooms:', error);
@@ -126,7 +187,7 @@ export default function ChatWidget({ className = '' }) {
     return (
         <div className={`fixed bottom-4 right-4 z-50 ${className}`}>
             {isOpen ? (
-                <div className="w-80 h-96 bg-white rounded-lg shadow-xl border">
+                <div className="w-80 h-[500px] bg-white rounded-lg shadow-xl border">
                     {showInbox ? (
                         // Inbox View
                         <div className="flex flex-col h-full">

@@ -5,7 +5,6 @@ import useCart from '@/Stores/useCart';
 import ReviewList from '@/Components/ReviewList';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
-import Chat from '@/Components/Chat/Chat';
 import { useTranslation } from 'react-i18next';
 
 export default function Show() {
@@ -15,7 +14,6 @@ export default function Show() {
   const [selectedLabel, setSelectedLabel] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showChat, setShowChat] = useState(false);
 
   const handleAddToCart = () => {
     const selectedOption = product.options.find(opt => opt.label === selectedLabel);
@@ -62,7 +60,15 @@ export default function Show() {
   };
 
   const handleMessageVendor = () => {
-    setShowChat(true);
+    // Open chat widget and navigate to vendor's chat
+    const currentUrl = new URL(window.location);
+    currentUrl.searchParams.set('chat_vendor', product.vendor_id);
+    window.history.pushState({}, '', currentUrl);
+    
+    // Trigger a custom event to open chat widget
+    window.dispatchEvent(new CustomEvent('openChatWidget', { 
+      detail: { vendorId: product.vendor_id } 
+    }));
   };
 
   return (
@@ -344,18 +350,6 @@ export default function Show() {
         </div>
       </div>
 
-      {/* Chat Modal */}
-      {showChat && auth.user && auth.user.role === 'customer' && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-md h-96 bg-white rounded-lg shadow-xl">
-            <Chat
-              vendorId={product.vendor_id}
-              customerId={auth.user.id}
-              onClose={() => setShowChat(false)}
-            />
-          </div>
-        </div>
-      )}
     </CustomerLayout>
   );
 }
