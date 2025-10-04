@@ -28,7 +28,13 @@ class GoogleAuthController extends Controller
                 'password' => bcrypt(uniqid()), // random password
                 'role' => 'customer', // default role
                 'google_id' => $validated['uid'], // store Firebase UID
+                'email_verified_at' => now(), // Google has already verified the email
             ]);
+        } else {
+            // If user exists but email is not verified, verify it since they're using Google
+            if (!$user->hasVerifiedEmail()) {
+                $user->update(['email_verified_at' => now()]);
+            }
         }
 
         Auth::login($user);

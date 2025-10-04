@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Notifications\ProfileUpdatedNotification;
+use App\Notifications\ProfileUpdateNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -39,6 +39,7 @@ class ProfileController extends Controller
         
         // Store original values to detect changes
         $originalData = $user->only(['full_name', 'mobile_number', 'shipping_address']);
+        Log::info('🔍 Original data:', $originalData);
         
         // Update user data
         $user->update([
@@ -48,14 +49,20 @@ class ProfileController extends Controller
         ]);
 
         // Detect changes and send notification
-        $changes = $this->detectChanges($originalData, $request->only(['full_name', 'mobile_number', 'shipping_address']));
+        $newData = $request->only(['full_name', 'mobile_number', 'shipping_address']);
+        Log::info('🆕 New data:', $newData);
+        
+        $changes = $this->detectChanges($originalData, $newData);
+        Log::info('🔄 Detected changes:', $changes);
         
         if (!empty($changes)) {
             try {
                 // Send email notification via Hostinger
-                $user->notify(new ProfileUpdatedNotification($user, $changes));
+                Log::info('🚀 About to send notification...');
+                $user->notify(new ProfileUpdateNotification($user, $changes));
+                Log::info('📧 Notification sent successfully!');
                 
-                Log::info('Profile updated notification sent via Hostinger', [
+                Log::info('✅ Profile updated notification sent via Hostinger', [
                     'user_id' => $user->id,
                     'user_email' => $user->email,
                     'changes' => array_keys($changes),
@@ -63,12 +70,20 @@ class ProfileController extends Controller
                     'ip_address' => $request->ip()
                 ]);
             } catch (\Exception $e) {
-                Log::error('Failed to send profile update notification', [
+                Log::error('❌ Failed to send profile update notification', [
                     'user_id' => $user->id,
                     'error' => $e->getMessage(),
                     'timestamp' => now()
                 ]);
             }
+        } else {
+            Log::info('ℹ️ No changes detected - notification not sent', [
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+                'original_data' => $originalData,
+                'new_data' => $newData,
+                'timestamp' => now()
+            ]);
         }
 
         return redirect()->back()->with('success', 'Profile updated successfully.');

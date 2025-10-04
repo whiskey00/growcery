@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [
     laravel({
-      input: 'resources/js/app.jsx',
+      input: ['resources/js/app.jsx'],
       refresh: true,
     }),
     react(),
@@ -13,12 +13,5 @@ export default defineConfig({
   build: {
     outDir: 'public/build',
     manifest: true,
-    rollupOptions: {
-      input: 'resources/js/app.jsx',
-    },
-  },
-  define: {
-    'import.meta.env.VITE_PUSHER_APP_KEY': JSON.stringify(process.env.PUSHER_APP_KEY),
-    'import.meta.env.VITE_PUSHER_APP_CLUSTER': JSON.stringify(process.env.PUSHER_APP_CLUSTER),
   },
 });
