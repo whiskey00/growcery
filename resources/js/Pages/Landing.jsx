@@ -3,10 +3,11 @@ import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Link, router } from '@inertiajs/react';
 import useCart from '@/Stores/useCart';
 import { useTranslation } from 'react-i18next';
+import { getCategoryTranslation } from '@/utils/categoryTranslations';
 
 export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
     const { addToCart } = useCart();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const handleAddToCart = (product) => {
         if (!isLoggedIn) {
@@ -89,7 +90,7 @@ export default function Landing({ isLoggedIn, user, role, featuredProducts }) {
                             </div>
                             <div className="p-4">
                                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-2 mb-1">{product.name}</h3>
-                                <p className="text-xs sm:text-sm text-gray-500 mb-2">{product.category?.name}</p>
+                                <p className="text-xs sm:text-sm text-gray-500 mb-2">{product.category ? getCategoryTranslation(product.category, t, i18n) : ''}</p>
                                 <p className="text-green-600 font-bold text-sm sm:text-base mb-3">₱{Number(product.price).toLocaleString()}</p>
                                 <div className="flex gap-2">
                                     <Link

@@ -106,6 +106,9 @@ class VendorDashboardController extends Controller
                 'created_at' => $review->created_at,
             ]);
 
+        // Get unread notification count
+        $unreadNotificationsCount = auth()->user()->unreadNotifications()->count();
+
         return Inertia::render('Vendor/Dashboard', [
             'totalSales' => $totalSales,
             'totalOrders' => $totalOrders,
@@ -121,6 +124,47 @@ class VendorDashboardController extends Controller
             'averageRating' => round($averageRating, 1),
             'ratingDistribution' => $ratingDistribution,
             'recentReviews' => $recentReviews,
+            'unreadNotificationsCount' => $unreadNotificationsCount,
         ]);
+    }
+
+    public function notifications()
+    {
+        $user = auth()->user();
+        
+        $notifications = $user->notifications()
+            ->where('type', 'App\Notifications\ProductExpiring')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get()
+            ->map(function ($notification) {
+                $data = $notification->data;
+                return [
+                    'id' => $notification->id,
+                    'product_id' => $data['product_id'],
+                    'product_name' => $data['product_name'],
+                    'date_harvested' => $data['date_harvested'],
+                    'expiry_date' => $data['expiry_date'],
+                    'days_until_expiry' => $data['days_until_expiry'],
+                    'type' => $data['type'],
+                    'message' => $data['message'],
+                    'read_at' => $notification->read_at,
+                    'created_at' => $notification->created_at,
+                ];
+            });
+
+        return response()->json([
+            'notifications' => $notifications,
+            'unread_count' => $user->unreadNotifications()->count(),
+        ]);
+    }
+
+    public function markNotificationRead($notificationId)
+    {
+        $user = auth()->user();
+        $notification = $user->notifications()->findOrFail($notificationId);
+        $notification->markAsRead();
+        
+        return response()->json(['success' => true]);
     }
 }

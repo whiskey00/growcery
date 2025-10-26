@@ -10,6 +10,8 @@ class Product extends Model
     protected $fillable = [
         'vendor_id',
         'category_id',
+        'date_harvested',
+        'expected_lifespan_days',
         'name',
         'price',
         'status',
@@ -23,6 +25,8 @@ class Product extends Model
     protected $casts = [
         'options' => 'array',
         'price' => 'decimal:2',
+        'date_harvested' => 'date',
+        'expected_lifespan_days' => 'integer',
         'average_rating' => 'decimal:1',
     ];
 
@@ -44,5 +48,35 @@ class Product extends Model
     public function reviews()
     {
         return $this->hasMany(ProductReview::class);
+    }
+
+    /**
+     * Get the expiry date based on harvest date and lifespan
+     */
+    public function getExpiryDateAttribute()
+    {
+        if (!$this->date_harvested || !$this->expected_lifespan_days) {
+            return null;
+        }
+        return $this->date_harvested->addDays($this->expected_lifespan_days);
+    }
+
+    /**
+     * Get days until expiry (negative if expired)
+     */
+    public function getDaysUntilExpiryAttribute()
+    {
+        if (!$this->expiry_date) {
+            return null;
+        }
+        
+        $now = now()->startOfDay();
+        $expiryDate = $this->expiry_date->startOfDay();
+        
+        if ($expiryDate->isFuture()) {
+            return $now->diffInDays($expiryDate, false);
+        } else {
+            return -1 * $now->diffInDays($expiryDate, false);
+        }
     }
 }

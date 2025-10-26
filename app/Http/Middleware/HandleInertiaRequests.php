@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Illuminate\Support\Facades\App;
@@ -43,6 +44,9 @@ class HandleInertiaRequests extends Middleware
         
         // Get vendor order counts
         $vendorOrderCounts = $this->getVendorOrderCounts($request);
+        
+        // Get vendor expiry counts
+        $vendorExpiryCounts = $this->getVendorExpiryCounts($request);
 
         return array_merge(parent::share($request), [
             'csrf_token' => csrf_token(),
@@ -63,6 +67,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'cartItems' => $cartItems,
             'vendorOrderCounts' => $vendorOrderCounts,
+            'vendorExpiryCounts' => $vendorExpiryCounts,
             'translations' => $this->getTranslations(),
         ]);
     }
@@ -145,6 +150,44 @@ class HandleInertiaRequests extends Middleware
             'to_receive' => $orderCounts['to_receive'] ?? 0,
             'completed' => $orderCounts['completed'] ?? 0,
             'cancelled' => $orderCounts['cancelled'] ?? 0,
+        ];
+    }
+
+    /**
+     * Get expiry counts for vendor products.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    protected function getVendorExpiryCounts($request)
+    {
+        $user = $request->user();
+        if (!$user || $user->role !== 'vendor') {
+            return [];
+        }
+
+        $products = Product::where('vendor_id', $user->id)
+            ->whereNotNull('date_harvested')
+            ->whereNotNull('expected_lifespan_days')
+            ->get();
+        
+        $expiredCount = 0;
+        $expiringSoonCount = 0;
+        
+        foreach ($products as $product) {
+            $daysUntilExpiry = $product->days_until_expiry;
+            if ($daysUntilExpiry !== null) {
+                if ($daysUntilExpiry <= 0) {
+                    $expiredCount++;
+                } elseif ($daysUntilExpiry <= config('growcery.expiry_warning_days', 3)) {
+                    $expiringSoonCount++;
+                }
+            }
+        }
+
+        return [
+            'expired' => $expiredCount,
+            'expiring_soon' => $expiringSoonCount,
         ];
     }
 }

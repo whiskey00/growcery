@@ -10,6 +10,8 @@ export default function Create({ categories }) {
         quantity: '',
         description: '',
         status: 'draft',
+        date_harvested: '',
+        expected_lifespan_days: '',
         options: [{ label: '', price: '' }],
         image: undefined,
     });
@@ -100,6 +102,51 @@ export default function Create({ categories }) {
                                 onChange={(e) => setData('quantity', e.target.value)}
                             />
                         </div>
+                    </div>
+
+                    {/* Expiry Information */}
+                    <div className="border-t pt-6 mt-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Expiry Information (Optional)</h3>
+                        <p className="text-sm text-gray-600 mb-4">
+                            Add harvest date and expected lifespan to track product expiry and receive notifications.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Date Harvested
+                                    <span className="text-gray-500 font-normal ml-1">(Optional)</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    className="w-full border rounded px-4 py-2"
+                                    value={data.date_harvested}
+                                    onChange={(e) => setData('date_harvested', e.target.value)}
+                                />
+                                {errors.date_harvested && <p className="text-red-600 text-sm mt-1">{errors.date_harvested}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Expected Lifespan (Days)
+                                    <span className="text-gray-500 font-normal ml-1">(Optional)</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    placeholder="e.g., 7 for 7 days"
+                                    className="w-full border rounded px-4 py-2"
+                                    value={data.expected_lifespan_days}
+                                    onChange={(e) => setData('expected_lifespan_days', e.target.value)}
+                                />
+                                {errors.expected_lifespan_days && <p className="text-red-600 text-sm mt-1">{errors.expected_lifespan_days}</p>}
+                            </div>
+                        </div>
+                        {data.date_harvested && data.expected_lifespan_days && (
+                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                                <p className="text-sm text-blue-800">
+                                    <strong>Expiry Date:</strong> {new Date(new Date(data.date_harvested).getTime() + data.expected_lifespan_days * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Description */}

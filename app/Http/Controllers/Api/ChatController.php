@@ -20,10 +20,17 @@ class ChatController extends Controller
      */
     public function getRoom(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'vendor_id' => 'required|exists:users,id',
-            'customer_id' => 'required|exists:users,id',
-        ]);
+        try {
+            \Log::info('Chat getRoom request:', $request->all());
+            
+            $validated = $request->validate([
+                'vendor_id' => 'required|exists:users,id',
+                'customer_id' => 'required|exists:users,id',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Chat getRoom validation error: ' . $e->getMessage());
+            return response()->json(['error' => 'Validation failed: ' . $e->getMessage()], 422);
+        }
 
         // Verify the users have the correct roles
         $vendor = User::findOrFail($validated['vendor_id']);

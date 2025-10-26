@@ -5,7 +5,7 @@ import ChatWidget from '@/Components/Chat/ChatWidget';
 
 const VendorLayout = ({ children }) => {
     const { post } = useForm();
-    const { actingAs, auth, vendorOrderCounts } = usePage().props;
+    const { actingAs, auth, vendorOrderCounts, vendorExpiryCounts } = usePage().props;
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const handleViewSwitch = () => {
@@ -43,7 +43,21 @@ const VendorLayout = ({ children }) => {
                         <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        Products
+                        <span className="flex-1">Products</span>
+                        {vendorExpiryCounts && (vendorExpiryCounts.expiring_soon > 0 || vendorExpiryCounts.expired > 0) && (
+                            <div className="flex items-center gap-1 ml-2">
+                                {vendorExpiryCounts.expiring_soon > 0 && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        {vendorExpiryCounts.expiring_soon}
+                                    </span>
+                                )}
+                                {vendorExpiryCounts.expired > 0 && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        {vendorExpiryCounts.expired}
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </Link>
 
                     <Link 
@@ -167,7 +181,21 @@ const VendorLayout = ({ children }) => {
                                 <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                 </svg>
-                                Products
+                                <span className="flex-1">Products</span>
+                                {vendorExpiryCounts && (vendorExpiryCounts.expiring_soon > 0 || vendorExpiryCounts.expired > 0) && (
+                                    <div className="flex flex-col gap-1 ml-2">
+                                        {vendorExpiryCounts.expiring_soon > 0 && (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                {vendorExpiryCounts.expiring_soon}
+                                            </span>
+                                        )}
+                                        {vendorExpiryCounts.expired > 0 && (
+                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                {vendorExpiryCounts.expired}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </Link>
 
                             <Link 

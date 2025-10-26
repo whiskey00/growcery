@@ -26,7 +26,7 @@
     "categories": "Mga Kategorya",
     "allCategories": "Lahat ng Kategorya",
     "allProducts": "Lahat ng Produkto",
-    "searchPlaceholder": "Maghanap ng produkto...",
+    "searchPlaceholder": "Maghanap ng produkto o tindero...",
     "searchFilter": "Paghahanap",
     "categoryFilter": "Kategorya",
     "selectOption": "Pumili ng Opsyon",
@@ -150,6 +150,13 @@
     "categories": "Mga Kategorya",
     "orders": "Mga Order",
     "settings": "Mga Setting"
+  },
+  "categories": {
+    "fruits": "Prutas",
+    "grains": "Butil",
+    "leafy greens": "Madahong Gulay",
+    "root crops": "Tubers",
+    "vegetables": "Gulay"
   },
   "vendor": {
     "products": {

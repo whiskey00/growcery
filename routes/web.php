@@ -116,6 +116,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/orders/{order}', [VendorOrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}', [VendorOrderController::class, 'update'])->name('orders.update');
         Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+        Route::get('/notifications', [VendorDashboardController::class, 'notifications'])->name('notifications');
+        Route::post('/notifications/{notification}/mark-read', [VendorDashboardController::class, 'markNotificationRead'])->name('notifications.mark-read');
     });
 
     // Customer-only
@@ -182,66 +184,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/vendor/switch-view', [App\Http\Controllers\Vendor\RoleSwitchController::class, 'switch'])
         ->name('vendor.switch-view');
 
-    // Chat API routes (moved from api.php for session auth compatibility)
-    Route::post('/api/chat/room', [App\Http\Controllers\Api\ChatController::class, 'getRoom']);
-    Route::get('/api/chat/rooms', [App\Http\Controllers\Api\ChatController::class, 'getRooms']);
-    Route::get('/api/chat/rooms/{roomId}/messages', [App\Http\Controllers\Api\ChatController::class, 'getMessages']);
-    Route::post('/api/chat/send', [App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
-    Route::post('/api/chat/rooms/{roomId}/read', [App\Http\Controllers\Api\ChatController::class, 'markAsRead']);
-    
     // Broadcasting authentication (for private channels)
     Route::post('/api/broadcasting/auth', function (Illuminate\Http\Request $request) {
         return \Illuminate\Support\Facades\Broadcast::auth($request);
-    });
-    
-    // Debug route to check chat system status
-    Route::get('/api/chat/debug', function () {
-        try {
-            $roomsCount = \App\Models\Room::count();
-            $messagesCount = \App\Models\Message::count();
-            $usersCount = \App\Models\User::count();
-            
-            // Try to find room 2
-            $room2 = \App\Models\Room::find(2);
-            
-            return response()->json([
-                'rooms_count' => $roomsCount,
-                'messages_count' => $messagesCount,
-                'users_count' => $usersCount,
-                'room_2_exists' => $room2 ? true : false,
-                'room_2_data' => $room2,
-                'auth_user' => auth()->user(),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ], 500);
-        }
-    });
-    
-    // Simple test for rooms endpoint
-    Route::get('/api/chat/test-rooms', function () {
-        try {
-            $user = auth()->user();
-            $rooms = \App\Models\Room::where(function ($query) use ($user) {
-                $query->where('vendor_id', $user->id)
-                      ->orWhere('customer_id', $user->id);
-            })->get();
-            
-            return response()->json([
-                'user_id' => $user->id,
-                'rooms_count' => $rooms->count(),
-                'rooms' => $rooms->toArray(),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ], 500);
-        }
     });
 });
 

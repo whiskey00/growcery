@@ -2,11 +2,14 @@ import React, { useState, useEffect } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Link, router } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
+import { useTranslation } from 'react-i18next';
+import { getCategoryTranslation } from '@/utils/categoryTranslations';
 
 export default function ProductIndex({ products = [] }) {
     const [search, setSearch] = useState("");
     const [isSearching, setIsSearching] = useState(false);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
+    const { t, i18n } = useTranslation();
 
     // Create a debounced search function
     const debouncedSearch = debounce((query) => {
@@ -120,7 +123,7 @@ export default function ProductIndex({ products = [] }) {
                                             />
                                             <div className="ml-4 flex-1">
                                                 <div className="font-medium text-gray-900">{product.name}</div>
-                                                <div className="text-sm text-gray-500">{product.category?.name || 'N/A'}</div>
+                                                <div className="text-sm text-gray-500">{product.category ? getCategoryTranslation(product.category, t, i18n) : 'N/A'}</div>
                                                 <div className="text-sm font-medium text-gray-900 mt-1">₱{Number(product.price).toLocaleString()}</div>
                                             </div>
                                         </div>
@@ -207,7 +210,7 @@ export default function ProductIndex({ products = [] }) {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm text-gray-900">{product.category?.name || 'N/A'}</div>
+                                                    <div className="text-sm text-gray-900">{product.category ? getCategoryTranslation(product.category, t, i18n) : 'N/A'}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="text-sm font-medium text-gray-900">₱{Number(product.price).toLocaleString()}</div>

@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\SyncOrderReviews::class,
+        Commands\CheckProductExpiry::class,
     ];
 
     /**
@@ -27,6 +28,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire:inspire')->hourly();
+        $schedule->command('products:check-expiry')->daily();
     }
 
     /**

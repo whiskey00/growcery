@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePage } from '@inertiajs/react';
 import { chatClient, getRoomId, getUserDisplayName } from '@/Services/ablyChat';
 
-export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUserName: propOtherUserName, onClose }) {
+export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUserName: propOtherUserName, onClose, autoSendMessage, productInfo }) {
     const { auth } = usePage().props;
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
@@ -13,6 +13,7 @@ export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUs
     const [preview, setPreview] = useState(null);
     const [showImageModal, setShowImageModal] = useState(false);
     const [modalImageUrl, setModalImageUrl] = useState('');
+    const [hasAutoSent, setHasAutoSent] = useState(false);
     const messagesEndRef = useRef(null);
     const channelRef = useRef(null);
     const lastSendTimeRef = useRef(0);
@@ -94,6 +95,31 @@ export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUs
         };
     }, [roomId, auth?.user]);
 
+    // Auto-send initial message if provided and no messages exist
+    useEffect(() => {
+        const autoSendInitialMessage = async () => {
+            if (hasAutoSent || !autoSendMessage || messages.length > 0 || !isConnected) {
+                return;
+            }
+
+            // Wait a bit for the connection to be stable
+            setTimeout(async () => {
+                if (autoSendMessage && messages.length === 0 && isConnected && !hasAutoSent) {
+                    setNewMessage(autoSendMessage);
+                    setHasAutoSent(true);
+                    
+                    // Auto-send the message
+                    const form = document.querySelector('form');
+                    if (form) {
+                        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                    }
+                }
+            }, 1000);
+        };
+
+        autoSendInitialMessage();
+    }, [messages, isConnected, hasAutoSent, autoSendMessage]);
+
     // Auto-scroll to bottom when messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -148,6 +174,7 @@ export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUs
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json',
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({
@@ -170,6 +197,7 @@ export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUs
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
                             'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json',
                         },
                         credentials: 'same-origin'
                     });
@@ -237,6 +265,7 @@ export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUs
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json',
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({
@@ -268,6 +297,7 @@ export default function Chat({ vendorId, customerId, roomId: propRoomId, otherUs
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json',
                 },
                 credentials: 'same-origin',
                 body: formData

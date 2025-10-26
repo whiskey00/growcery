@@ -33,11 +33,13 @@ export default function ChatWidget({ className = '', autoOpen = false, targetVen
     // Listen for custom events to open chat widget
     useEffect(() => {
         const handleOpenChatWidget = (event) => {
-            const { vendorId } = event.detail;
+            const { vendorId, autoSendMessage, productInfo } = event.detail;
             setIsOpen(true);
             setShowInbox(true);
-            // Store the target vendor ID for when rooms are loaded
+            // Store the target vendor ID and auto-send message for when rooms are loaded
             window.targetVendorId = vendorId;
+            window.autoSendMessage = autoSendMessage;
+            window.productInfo = productInfo;
         };
 
         window.addEventListener('openChatWidget', handleOpenChatWidget);
@@ -67,6 +69,7 @@ export default function ChatWidget({ className = '', autoOpen = false, targetVen
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json',
                 },
                 credentials: 'same-origin'
             });
@@ -103,6 +106,9 @@ export default function ChatWidget({ className = '', autoOpen = false, targetVen
                         selectChat(targetRoom);
                         // Clear the target vendor ID
                         window.targetVendorId = null;
+                    } else {
+                        // If no room exists, create one automatically
+                        createRoomForVendor(window.targetVendorId);
                     }
                 }
             } else {
@@ -146,6 +152,9 @@ export default function ChatWidget({ className = '', autoOpen = false, targetVen
                         selectChat(targetRoom);
                         // Clear the target vendor ID
                         window.targetVendorId = null;
+                    } else {
+                        // If no room exists, create one automatically
+                        createRoomForVendor(window.targetVendorId);
                     }
                 }
             }
@@ -165,6 +174,55 @@ export default function ChatWidget({ className = '', autoOpen = false, targetVen
     const backToInbox = () => {
         setSelectedChat(null);
         setShowInbox(true);
+    };
+
+    const createRoomForVendor = async (vendorId) => {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            const response = await fetch('/api/chat/room', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    vendor_id: vendorId,
+                    customer_id: auth.user.id
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Create a room object for the new room
+                const newRoom = {
+                    id: data.room.id,
+                    vendorId: data.room.vendor_id,
+                    customerId: data.room.customer_id,
+                    vendorName: data.room.vendor.name,
+                    customerName: data.room.customer.name,
+                    otherUserName: data.room.vendor.name,
+                    lastMessage: 'No messages yet',
+                    lastMessageTime: new Date().toISOString(),
+                    unreadCount: 0
+                };
+                
+                // Add to chat rooms
+                setChatRooms(prev => [...prev, newRoom]);
+                
+                // Select the new room
+                selectChat(newRoom);
+                
+                // Clear the target vendor ID
+                window.targetVendorId = null;
+            }
+        } catch (error) {
+            console.error('Failed to create room:', error);
+        }
     };
 
     const formatTime = (timestamp) => {
@@ -279,6 +337,8 @@ export default function ChatWidget({ className = '', autoOpen = false, targetVen
                             customerId={selectedChat.customerId}
                             otherUserName={selectedChat.otherUserName}
                             onClose={backToInbox}
+                            autoSendMessage={window.autoSendMessage}
+                            productInfo={window.productInfo}
                         />
                     )}
                 </div>

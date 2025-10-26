@@ -21,8 +21,51 @@ class ProductController extends Controller
             ->orderByDesc('created_at')
             ->paginate(10);
 
+        // Count expired and expiring products from all products (not just paginated)
+        $allProducts = Product::where('vendor_id', auth()->id())
+            ->whereNotNull('date_harvested')
+            ->whereNotNull('expected_lifespan_days')
+            ->get();
+        
+        $expiredCount = 0;
+        $expiringSoonCount = 0;
+        
+        foreach ($allProducts as $product) {
+            $daysUntilExpiry = $product->days_until_expiry;
+            if ($daysUntilExpiry !== null) {
+                if ($daysUntilExpiry <= 0) {
+                    $expiredCount++;
+                } elseif ($daysUntilExpiry <= config('growcery.expiry_warning_days', 3)) {
+                    $expiringSoonCount++;
+                }
+            }
+        }
+
+        // Add expiry status to each product in paginated results
+        $products->getCollection()->transform(function ($product) {
+            $product->expiry_status = null;
+            $product->days_until_expiry_calc = null;
+            
+            if ($product->date_harvested && $product->expected_lifespan_days) {
+                $daysUntilExpiry = $product->days_until_expiry;
+                $product->days_until_expiry_calc = $daysUntilExpiry;
+                
+                if ($daysUntilExpiry !== null) {
+                    if ($daysUntilExpiry <= 0) {
+                        $product->expiry_status = 'expired';
+                    } elseif ($daysUntilExpiry <= config('growcery.expiry_warning_days', 3)) {
+                        $product->expiry_status = 'expiring_soon';
+                    }
+                }
+            }
+            
+            return $product;
+        });
+
         return Inertia::render('Vendor/Products/Index', [
-            'products' => $products
+            'products' => $products,
+            'expiredCount' => $expiredCount,
+            'expiringSoonCount' => $expiringSoonCount,
         ]);
     }
 
@@ -44,6 +87,8 @@ class ProductController extends Controller
             'quantity' => 'required|integer',
             'description' => 'nullable|string',
             'status' => 'required|in:draft,published',
+            'date_harvested' => 'nullable|date',
+            'expected_lifespan_days' => 'nullable|integer|min:0',
             'options' => 'nullable|array',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -96,6 +141,8 @@ public function update(Request $request, Product $product)
         'quantity' => $request->input('quantity'),
         'description' => $request->input('description'),
         'status' => $request->input('status'),
+        'date_harvested' => $request->input('date_harvested'),
+        'expected_lifespan_days' => $request->input('expected_lifespan_days'),
     ];
 
     // Decode options if passed as a JSON string
@@ -126,6 +173,8 @@ if ($request->hasFile('image')) {
         'description' => 'nullable|string',
         'status' => 'required|in:draft,published',
         'options' => 'nullable|array',
+        'date_harvested' => 'nullable|date',
+        'expected_lifespan_days' => 'nullable|integer|min:0',
         'image' => 'nullable|string|max:2048',
     ])->validate();
 

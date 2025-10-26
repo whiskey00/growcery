@@ -6,9 +6,10 @@ import ReviewList from '@/Components/ReviewList';
 import { StarIcon } from '@heroicons/react/20/solid';
 import { ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
+import { getCategoryTranslation } from '@/utils/categoryTranslations';
 
 export default function Show() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addToCart } = useCart(); 
   const { product, auth } = usePage().props;
   const [selectedLabel, setSelectedLabel] = useState('');
@@ -65,9 +66,20 @@ export default function Show() {
     currentUrl.searchParams.set('chat_vendor', product.vendor_id);
     window.history.pushState({}, '', currentUrl);
     
-    // Trigger a custom event to open chat widget
+    // Create initial message about the product
+    const initialMessage = `Hi! I'm interested in your product "${product.name}" (₱${Number(product.price).toLocaleString()}). Could you tell me more about it?`;
+    
+    // Trigger a custom event to open chat widget with auto-send message
     window.dispatchEvent(new CustomEvent('openChatWidget', { 
-      detail: { vendorId: product.vendor_id } 
+      detail: { 
+        vendorId: product.vendor_id,
+        autoSendMessage: initialMessage,
+        productInfo: {
+          name: product.name,
+          id: product.id,
+          price: product.price
+        }
+      } 
     }));
   };
 
@@ -132,7 +144,7 @@ export default function Show() {
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{product.name}</h1>
                   {product.category && (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                      {product.category.name}
+                      {getCategoryTranslation(product.category, t, i18n)}
                     </span>
                   )}
                 </div>
@@ -271,7 +283,7 @@ export default function Show() {
 
         {/* Success Message */}
         {showSuccess && (
-          <div className="fixed bottom-4 right-4 bg-white border border-green-500 rounded-lg shadow-lg">
+          <div className="fixed top-20 right-4 bg-white border border-green-500 rounded-lg shadow-lg z-50 animate-in slide-in-from-top-2 duration-300">
             <div className="p-4">
               <div className="flex items-start">
                 <div className="flex-shrink-0">

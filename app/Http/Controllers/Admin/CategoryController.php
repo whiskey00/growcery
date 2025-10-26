@@ -25,10 +25,12 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|unique:categories,name',
+            'name_tagalog' => 'nullable|string|max:255',
         ]);
 
         Category::create([
             'name' => $validated['name'],
+            'name_tagalog' => $validated['name_tagalog'],
             'slug' => Str::slug($validated['name']),
             'status' => true,
         ]);
@@ -45,10 +47,12 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|unique:categories,name,' . $category->id,
+            'name_tagalog' => 'nullable|string|max:255',
         ]);
 
         $category->update([
             'name' => $validated['name'],
+            'name_tagalog' => $validated['name_tagalog'],
             'slug' => Str::slug($validated['name']),
         ]);
 

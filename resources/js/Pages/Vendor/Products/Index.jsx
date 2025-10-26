@@ -4,7 +4,7 @@ import VendorLayout from '@/Layouts/VendorLayout';
 import debounce from 'lodash/debounce';
 import { useTranslation } from 'react-i18next';
 
-export default function Index({ products }) {
+export default function Index({ products, expiredCount = 0, expiringSoonCount = 0 }) {
     const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [isSearching, setIsSearching] = useState(false);
@@ -56,7 +56,19 @@ export default function Index({ products }) {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{t('vendor.products.title')}</h1>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{t('vendor.products.title')}</h1>
+                            {expiringSoonCount > 0 && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    {expiringSoonCount} Expiring Soon
+                                </span>
+                            )}
+                            {expiredCount > 0 && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    {expiredCount} Expired
+                                </span>
+                            )}
+                        </div>
                         <p className="mt-1 sm:mt-2 text-sm text-gray-700">
                             {t('vendor.products.manageProducts')}
                         </p>
@@ -121,7 +133,7 @@ export default function Index({ products }) {
                                             </div>
                                             <div className="ml-4 flex-1">
                                                 <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 flex-wrap">
                                                         <div className="text-sm font-medium text-gray-900">{product.name}</div>
                                                         {product.quantity === 0 && (
                                                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -131,6 +143,16 @@ export default function Index({ products }) {
                                                         {product.quantity > 0 && product.quantity <= 5 && (
                                                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                                                                 Low Stock
+                                                            </span>
+                                                        )}
+                                                        {product.expiry_status === 'expired' && (
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                                Expired
+                                                            </span>
+                                                        )}
+                                                        {product.expiry_status === 'expiring_soon' && (
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                Expiring Soon ({product.days_until_expiry_calc}d)
                                                             </span>
                                                         )}
                                                     </div>
@@ -207,7 +229,7 @@ export default function Index({ products }) {
                                                             />
                                                         </div>
                                                         <div className="ml-4">
-                                                            <div className="flex items-center gap-2">
+                                                            <div className="flex items-center gap-2 flex-wrap">
                                                                 <div className="text-sm font-medium text-gray-900">{product.name}</div>
                                                                 {product.quantity === 0 && (
                                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -217,6 +239,16 @@ export default function Index({ products }) {
                                                                 {product.quantity > 0 && product.quantity <= 5 && (
                                                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                                                                         Low Stock
+                                                                    </span>
+                                                                )}
+                                                                {product.expiry_status === 'expired' && (
+                                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                                        Expired
+                                                                    </span>
+                                                                )}
+                                                                {product.expiry_status === 'expiring_soon' && (
+                                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                        Expiring Soon ({product.days_until_expiry_calc}d)
                                                                     </span>
                                                                 )}
                                                             </div>

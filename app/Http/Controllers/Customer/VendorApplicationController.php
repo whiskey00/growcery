@@ -22,7 +22,7 @@ class VendorApplicationController extends Controller
             return redirect()->back()->with('error', 'You already have a pending or approved vendor application.');
         }
 
-        $categories = Category::all()->pluck('name');
+        $categories = Category::all(['id', 'name', 'name_tagalog']);
         \Log::info('Categories fetched:', $categories->toArray());
         
         return Inertia::render('Customer/VendorApplication/Create', [

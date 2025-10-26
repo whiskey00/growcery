@@ -1,7 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { useTranslation } from 'react-i18next';
+import { getCategoryTranslation } from '@/utils/categoryTranslations';
 
 export default function Index({ categories = [] }) {
+    const { t, i18n } = useTranslation();
+    
     const handleDelete = (id) => {
         if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
             router.delete(`/admin/categories/${id}`);
@@ -41,7 +45,7 @@ export default function Index({ categories = [] }) {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Name
+                                        Category Names
                                     </th>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Products
@@ -66,8 +70,13 @@ export default function Index({ categories = [] }) {
                                                     </div>
                                                     <div className="ml-4">
                                                         <div className="text-sm font-medium text-gray-900">
-                                                            {category.name}
+                                                            {getCategoryTranslation(category, t, i18n)}
                                                         </div>
+                                                        {category.name_tagalog && (
+                                                            <div className="text-sm text-gray-500">
+                                                                {category.name} / {category.name_tagalog}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </td>

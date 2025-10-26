@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import VendorLayout from '@/Layouts/VendorLayout';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
 import { useTranslation } from 'react-i18next';
 
 export default function Index({ orders, activeStatus }) {
     const { t } = useTranslation();
+    const { vendorOrderCounts } = usePage().props;
     const [search, setSearch] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
@@ -70,7 +71,24 @@ export default function Index({ orders, activeStatus }) {
             <div className="space-y-4 sm:space-y-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{t('vendor.orders.title')}</h1>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{t('vendor.orders.title')}</h1>
+                        {vendorOrderCounts && vendorOrderCounts.to_pay > 0 && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                {vendorOrderCounts.to_pay} To Pay
+                            </span>
+                        )}
+                        {vendorOrderCounts && vendorOrderCounts.to_ship > 0 && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {vendorOrderCounts.to_ship} To Ship
+                            </span>
+                        )}
+                        {vendorOrderCounts && vendorOrderCounts.to_receive > 0 && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                {vendorOrderCounts.to_receive} To Receive
+                            </span>
+                        )}
+                    </div>
                     <p className="mt-1 sm:mt-2 text-sm text-gray-700">
                         {t('vendor.orders.manageOrders')}
                     </p>

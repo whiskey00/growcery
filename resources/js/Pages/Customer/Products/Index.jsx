@@ -3,17 +3,23 @@ import { usePage, Link, router } from '@inertiajs/react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import useCart from '@/Stores/useCart';
 import { useTranslation } from 'react-i18next';
+import { getCategoryTranslation } from '@/utils/categoryTranslations';
 
-export default function ProductBrowse({ products, categories, activeSearch, activeCategory, bestSellers = [] }) {
+export default function ProductBrowse({ products, categories, activeSearch, activeCategory, activeVendor, bestSellers = [], topVendors = [] }) {
     const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [searchValue, setSearchValue] = useState(activeSearch || '');
+    const [showVendorSuggestions, setShowVendorSuggestions] = useState(false);
+    const [filteredVendors, setFilteredVendors] = useState([]);
+    const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
     const { addToCart } = useCart();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const slideRef = useRef(null);
+    const searchInputRef = useRef(null);
 
     // Slideshow configuration - responsive items per slide
     const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-    const itemsPerSlide = windowWidth < 768 ? 1 : 3; // 1 item on mobile, 3 on desktop
+    const itemsPerSlide = windowWidth < 640 ? 1 : windowWidth < 1024 ? 2 : 3; // 1 on mobile, 2 on tablet, 3 on desktop
     const totalSlides = Math.ceil(bestSellers.length / itemsPerSlide);
 
     useEffect(() => {
@@ -35,6 +41,11 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
         }
     }, [bestSellers.length, totalSlides]);
 
+    // Update search value when activeSearch prop changes
+    useEffect(() => {
+        setSearchValue(activeSearch || '');
+    }, [activeSearch]);
+
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % totalSlides);
     };
@@ -48,11 +59,36 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
     };
 
     const handleSearch = (e) => {
-        router.get('/products', { search: e.target.value, category: activeCategory }, { preserveState: true });
+        const value = e.target.value;
+        setSearchValue(value);
+        
+        // Filter vendors based on search input
+        if (value.length > 0) {
+            const filtered = topVendors.filter(vendor => 
+                vendor.name.toLowerCase().includes(value.toLowerCase()) ||
+                (vendor.full_name && vendor.full_name.toLowerCase().includes(value.toLowerCase()))
+            );
+            setFilteredVendors(filtered);
+            setShowVendorSuggestions(filtered.length > 0);
+            setSelectedSuggestionIndex(-1);
+        } else {
+            setShowVendorSuggestions(false);
+            setFilteredVendors([]);
+        }
+        
+        // Perform actual search
+        router.get('/products', { search: value, category: activeCategory, vendor: activeVendor }, { preserveState: true });
     };
 
     const handleCategoryClick = (category) => {
-        router.get('/products', { search: activeSearch, category }, { preserveState: true });
+        const categoryName = typeof category === 'string' ? category : category.name;
+        router.get('/products', { search: activeSearch, category: categoryName, vendor: activeVendor }, { preserveState: true });
+        setShowMobileFilters(false);
+    };
+
+    const handleVendorClick = (vendor) => {
+        // Navigate to vendor's profile page
+        router.visit(`/customer/vendors/${vendor.id}`);
         setShowMobileFilters(false);
     };
 
@@ -70,6 +106,64 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
             }
         });
         alert(t('product.addedToCart', { name: product.name }));
+    };
+
+    // Helper function to check if search might be for a vendor
+    const isVendorSearch = (searchTerm) => {
+        if (!searchTerm) return false;
+        // Check if any of the top vendors match the search term
+        return topVendors.some(vendor => 
+            vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (vendor.full_name && vendor.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+    };
+
+    // Handle vendor suggestion selection
+    const handleVendorSuggestionClick = (vendor) => {
+        setSearchValue(vendor.full_name || vendor.name);
+        setShowVendorSuggestions(false);
+        setFilteredVendors([]);
+        setSelectedSuggestionIndex(-1);
+        
+        // Navigate to vendor's profile page
+        router.visit(`/customer/vendors/${vendor.id}`);
+    };
+
+    // Handle keyboard navigation
+    const handleSearchKeyDown = (e) => {
+        if (!showVendorSuggestions || filteredVendors.length === 0) return;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                setSelectedSuggestionIndex(prev => 
+                    prev < filteredVendors.length - 1 ? prev + 1 : prev
+                );
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (selectedSuggestionIndex >= 0) {
+                    handleVendorSuggestionClick(filteredVendors[selectedSuggestionIndex]);
+                }
+                break;
+            case 'Escape':
+                setShowVendorSuggestions(false);
+                setSelectedSuggestionIndex(-1);
+                break;
+        }
+    };
+
+    // Close suggestions when clicking outside
+    const handleSearchBlur = () => {
+        // Delay to allow click events on suggestions to fire
+        setTimeout(() => {
+            setShowVendorSuggestions(false);
+            setSelectedSuggestionIndex(-1);
+        }, 150);
     };
 
     const renderStars = (rating) => {
@@ -112,8 +206,8 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
     return (
         <CustomerLayout>
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-                {/* Mobile Filter Button */}
-                <div className="md:hidden mb-3">
+                {/* Mobile Filter Buttons */}
+                <div className="md:hidden mb-3 space-y-2">
                     <button
                         onClick={() => setShowMobileFilters(!showMobileFilters)}
                         className="w-full flex items-center justify-center gap-2 bg-white border rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
@@ -121,38 +215,183 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                         </svg>
-                        {showMobileFilters ? 'Hide Categories & Best Sellers' : 'Show Categories & Best Sellers'}
+                        {showMobileFilters ? 'Hide Categories' : 'Show Categories'}
                     </button>
+                    
+                    {/* Mobile Top Vendors - Always visible */}
+                    {topVendors.length > 0 && !activeSearch && !activeCategory && !activeVendor && (
+                        <div className="bg-white rounded-lg shadow-sm p-3">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                                        <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                                    </svg>
+                                    <h3 className="text-sm font-semibold text-gray-900">Top Vendors</h3>
+                                </div>
+                                <span className="text-xs text-gray-500 bg-blue-50 px-1.5 py-0.5 rounded-full">Rated</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 gap-2">
+                                {topVendors.slice(0, 3).map((vendor, index) => (
+                                    <button 
+                                        key={vendor.id} 
+                                        onClick={() => handleVendorClick(vendor)}
+                                        className={`w-full flex items-center gap-2 p-2 rounded-lg border transition-all text-left ${
+                                            activeVendor === vendor.name 
+                                                ? 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-300 shadow-sm' 
+                                                : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:shadow-sm hover:from-blue-100 hover:to-indigo-100'
+                                        }`}
+                                    >
+                                        {/* Rank Badge */}
+                                        <div className="flex-shrink-0">
+                                            <span className="bg-blue-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                                #{index + 1}
+                                            </span>
+                                        </div>
+                                        
+                                        {/* Vendor Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-xs font-medium text-gray-900 truncate">
+                                                {vendor.full_name || vendor.name}
+                                            </h4>
+                                            <div className="flex items-center gap-1">
+                                                <div className="flex items-center">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <svg
+                                                            key={i}
+                                                            className={`w-2 h-2 ${
+                                                                i < Math.floor(vendor.avg_rating) 
+                                                                    ? 'text-yellow-400' 
+                                                                    : 'text-gray-300'
+                                                            }`}
+                                                            fill="currentColor"
+                                                            viewBox="0 0 20 20"
+                                                        >
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                        </svg>
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs text-gray-600">
+                                                    {parseFloat(vendor.avg_rating).toFixed(1)}
+                                                </span>
+                                            </div>
+                                            <div className="flex-shrink-0">
+                                                <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 md:gap-5">
                     {/* Sticky Sidebar */}
-                    <aside className={`${showMobileFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
+                    <aside className="w-full md:w-64 flex-shrink-0">
                         <div className="md:sticky md:top-4 space-y-4">
-                            {/* Categories */}
-                            <div className="bg-white rounded-lg shadow-sm p-3.5">
-                                <h2 className="font-semibold text-base mb-3">{t('product.categories')}</h2>
-                                <div className="space-y-1.5">
-                                    <button
-                                        onClick={() => handleCategoryClick('')}
-                                        className={`w-full text-left px-2.5 py-1.5 rounded-md text-sm transition-colors ${!activeCategory ? 'bg-green-600 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
-                                    >
-                                        {t('product.allCategories')}
-                                    </button>
-                                    {categories.map((cat) => (
+                            {/* Categories - Hidden on mobile when filter is closed */}
+                            <div className={`${showMobileFilters ? 'block' : 'hidden'} md:block`}>
+                                <div className="bg-white rounded-lg shadow-sm p-3.5">
+                                    <h2 className="font-semibold text-base mb-3">{t('product.categories')}</h2>
+                                    <div className="space-y-1.5">
                                         <button
-                                            key={cat}
-                                            onClick={() => handleCategoryClick(cat)}
-                                            className={`w-full text-left px-2.5 py-1.5 rounded-md text-sm transition-colors ${activeCategory === cat ? 'bg-green-600 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
+                                            onClick={() => handleCategoryClick('')}
+                                            className={`w-full text-left px-2.5 py-1.5 rounded-md text-sm transition-colors ${!activeCategory ? 'bg-green-600 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
                                         >
-                                            {cat}
+                                            {t('product.allCategories')}
                                         </button>
-                                    ))}
+                                        {categories.map((cat) => (
+                                            <button
+                                                key={typeof cat === 'string' ? cat : cat.id}
+                                                onClick={() => handleCategoryClick(cat)}
+                                                className={`w-full text-left px-2.5 py-1.5 rounded-md text-sm transition-colors ${activeCategory === (typeof cat === 'string' ? cat : cat.name) ? 'bg-green-600 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
+                                            >
+                                                {getCategoryTranslation(cat, t, i18n)}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Best Sellers Slideshow */}
-                            {bestSellers.length > 0 && !activeSearch && !activeCategory && (
+                            {/* Top Vendors - Desktop only */}
+                            {topVendors.length > 0 && !activeSearch && !activeCategory && !activeVendor && (
+                                <div className="hidden md:block bg-white rounded-lg shadow-sm p-3.5">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                                                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                                            </svg>
+                                            <h2 className="text-sm font-semibold text-gray-900">Top Vendors</h2>
+                                        </div>
+                                        <span className="text-xs text-gray-500 bg-blue-50 px-1.5 py-0.5 rounded-full">Rated</span>
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        {topVendors.map((vendor, index) => (
+                                            <button 
+                                                key={vendor.id} 
+                                                onClick={() => handleVendorClick(vendor)}
+                                                className={`w-full flex items-center gap-2 p-2 rounded-lg border transition-all text-left ${
+                                                    activeVendor === vendor.name 
+                                                        ? 'bg-gradient-to-r from-blue-100 to-indigo-100 border-blue-300 shadow-sm' 
+                                                        : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:shadow-sm hover:from-blue-100 hover:to-indigo-100'
+                                                }`}
+                                            >
+                                                {/* Rank Badge */}
+                                                <div className="flex-shrink-0">
+                                                    <span className="bg-blue-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                                        #{index + 1}
+                                                    </span>
+                                                </div>
+                                                
+                                                {/* Vendor Info */}
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-xs font-medium text-gray-900 truncate">
+                                                        {vendor.full_name || vendor.name}
+                                                    </h3>
+                                                    <div className="flex items-center gap-1">
+                                                        <div className="flex items-center">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <svg
+                                                                    key={i}
+                                                                    className={`w-2.5 h-2.5 ${
+                                                                        i < Math.floor(vendor.avg_rating) 
+                                                                            ? 'text-yellow-400' 
+                                                                            : 'text-gray-300'
+                                                                    }`}
+                                                                    fill="currentColor"
+                                                                    viewBox="0 0 20 20"
+                                                                >
+                                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                                </svg>
+                                                            ))}
+                                                        </div>
+                                                        <span className="text-xs text-gray-600">
+                                                            {parseFloat(vendor.avg_rating).toFixed(1)}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">
+                                                        {vendor.total_products} products
+                                                    </p>
+                                                </div>
+                                                <div className="flex-shrink-0">
+                                                    <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Best Sellers moved to main content */}
+                            {false && bestSellers.length > 0 && !activeSearch && !activeCategory && (
                                 <div className="bg-white rounded-lg shadow-sm p-3.5">
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-2">
@@ -270,7 +509,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
 
                     {/* Main Content */}
                     <div className="flex-1">
-                        {/* Search and Header */}
+                        {/* Header */}
                         <div className="bg-white rounded-lg shadow-sm p-3.5 mb-4">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                 <h1 className="text-lg font-semibold text-gray-900">{t('product.allProducts')}</h1>
@@ -281,17 +520,95 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                         </svg>
                                     </div>
                                     <input
+                                        ref={searchInputRef}
                                         type="text"
                                         placeholder={t('product.searchPlaceholder')}
-                                        defaultValue={activeSearch}
+                                        value={searchValue}
                                         onChange={handleSearch}
+                                        onKeyDown={handleSearchKeyDown}
+                                        onBlur={handleSearchBlur}
+                                        onFocus={() => {
+                                            if (filteredVendors.length > 0) {
+                                                setShowVendorSuggestions(true);
+                                            }
+                                        }}
                                         className="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     />
+                                    
+                                    {/* Vendor Suggestions Dropdown */}
+                                    {showVendorSuggestions && filteredVendors.length > 0 && (
+                                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                            <div className="py-1">
+                                                <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 border-b">
+                                                    Suggested Vendors (Click to visit)
+                                                </div>
+                                                {filteredVendors.map((vendor, index) => (
+                                                    <button
+                                                        key={vendor.id}
+                                                        onClick={() => handleVendorSuggestionClick(vendor)}
+                                                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                                                            index === selectedSuggestionIndex ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                                                        }`}
+                                                    >
+                                                        <div className="flex-shrink-0">
+                                                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                                                                <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                                                            </svg>
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="font-medium truncate">
+                                                                {vendor.full_name || vendor.name}
+                                                            </div>
+                                                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                                <div className="flex items-center">
+                                                                    {[...Array(5)].map((_, i) => (
+                                                                        <svg
+                                                                            key={i}
+                                                                            className={`w-2 h-2 ${
+                                                                                i < Math.floor(vendor.avg_rating) 
+                                                                                    ? 'text-yellow-400' 
+                                                                                    : 'text-gray-300'
+                                                                            }`}
+                                                                            fill="currentColor"
+                                                                            viewBox="0 0 20 20"
+                                                                        >
+                                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                                        </svg>
+                                                                    ))}
+                                                                </div>
+                                                                <span>{parseFloat(vendor.avg_rating).toFixed(1)}</span>
+                                                                <span>•</span>
+                                                                <span>{vendor.total_products} products</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-shrink-0">
+                                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                                            </svg>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                                {filteredVendors.length === 0 && searchValue.length > 0 && (
+                                                    <div className="px-3 py-2 text-sm text-gray-500 text-center">
+                                                        No vendors found for "{searchValue}"
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+                            
+                            {/* Search Hint */}
+                            {activeSearch && isVendorSearch(activeSearch) && (
+                                <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                    💡 Searching for vendor: "{activeSearch}"
+                                </div>
+                            )}
 
                             {/* Active Filters */}
-                            {(activeSearch || activeCategory) && (
+                            {(activeSearch || activeCategory || activeVendor) && (
                                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600">
                                     <span className="font-medium">{t('common.filters')}:</span>
                                     {activeSearch && (
@@ -304,11 +621,131 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                             {t('product.categoryFilter')}: {activeCategory}
                                         </span>
                                     )}
+                                    {activeVendor && (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            Vendor: {activeVendor}
+                                        </span>
+                                    )}
                                 </div>
                             )}
                         </div>
 
-                        {/* Best Sellers moved to sidebar */}
+                        {/* Top Sellers Section */}
+                        {bestSellers.length > 0 && !activeSearch && !activeCategory && !activeVendor && (
+                            <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                        <h2 className="text-lg font-semibold text-gray-900">Top Sellers</h2>
+                                    </div>
+                                    <span className="text-sm text-gray-500 bg-yellow-50 px-3 py-1 rounded-full">Hot Products</span>
+                                </div>
+                                
+                                {/* Slideshow Container */}
+                                <div className="relative">
+                                    <div className="overflow-hidden rounded-lg">
+                                        <div 
+                                            ref={slideRef}
+                                            className="flex transition-transform duration-500 ease-in-out"
+                                            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                                        >
+                                            {Array.from({ length: totalSlides }, (_, slideIndex) => (
+                                                <div key={slideIndex} className="w-full flex-shrink-0">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                        {bestSellers
+                                                            .slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide)
+                                                            .map((product, index) => {
+                                                                const globalIndex = slideIndex * itemsPerSlide + index;
+                                                                const isOutOfStock = product.quantity === 0;
+                                                                
+                                                                return (
+                                                                    <div key={product.id} className="relative bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 border border-yellow-200 hover:shadow-md transition-shadow">
+                                                                        <div className="flex items-center gap-3">
+                                                                            {/* Rank Badge */}
+                                                                            <div className="flex-shrink-0">
+                                                                                <span className="bg-yellow-500 text-white text-sm font-bold px-2 py-1 rounded-full">
+                                                                                    #{globalIndex + 1}
+                                                                                </span>
+                                                                            </div>
+                                                                            
+                                                                            {/* Product Image */}
+                                                                            <div className="w-16 h-16 flex-shrink-0">
+                                                                                <img
+                                                                                    src={product.image ? `/storage/${product.image}` : 'https://placehold.co/100x100?text=No+Image'} 
+                                                                                    alt={product.name}
+                                                                                    className={`w-full h-full object-cover rounded ${isOutOfStock ? 'grayscale' : ''}`}
+                                                                                />
+                                                                            </div>
+                                                                            
+                                                                            {/* Product Info */}
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
+                                                                                <p className="text-sm text-green-600 font-semibold">₱{Number(product.price).toLocaleString()}</p>
+                                                                                <p className="text-xs text-yellow-600">{product.orders_count || 0} sold</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                        {/* View Button */}
+                                                                        <Link
+                                                                            href={`/customer/products/${product.id}`}
+                                                                            className={`w-full mt-3 flex items-center justify-center py-2 px-3 rounded text-sm font-medium transition-colors ${
+                                                                                isOutOfStock 
+                                                                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
+                                                                                    : 'text-white bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                                                                            }`}
+                                                                        >
+                                                                            {isOutOfStock ? 'Out of Stock' : 'View Product'}
+                                                                        </Link>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Navigation Arrows */}
+                                    {totalSlides > 1 && (
+                                        <>
+                                            <button
+                                                onClick={prevSlide}
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={nextSlide}
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                        </>
+                                    )}
+                                    
+                                    {/* Slide Indicators */}
+                                    {totalSlides > 1 && (
+                                        <div className="flex justify-center gap-2 mt-4">
+                                            {Array.from({ length: totalSlides }, (_, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => goToSlide(i)}
+                                                    className={`w-2 h-2 rounded-full transition-colors ${
+                                                        currentSlide === i ? 'bg-yellow-500' : 'bg-gray-300'
+                                                    }`}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Product Grid */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -351,7 +788,12 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                             </div>
                                             
                                             <div className="flex items-center gap-1.5 mb-2 text-xs">
-                                                <p className="text-gray-500">{product.category?.name}</p>
+                                                <p className="text-gray-500">
+                                                    {product.category ? 
+                                                        getCategoryTranslation(product.category, t, i18n) : 
+                                                        ''
+                                                    }
+                                                </p>
                                                 {product.vendor && (
                                                     <>
                                                         <span className="text-gray-300">•</span>
