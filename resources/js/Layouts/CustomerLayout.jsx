@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import ChatWidget from '@/Components/Chat/ChatWidget';
 
 export default function CustomerLayout({ children }) {
     const { auth, cartItems } = usePage().props;
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -55,14 +57,14 @@ export default function CustomerLayout({ children }) {
                                 href="/products"
                                 className="text-white hover:text-green-100 px-3 py-2 text-sm font-medium"
                             >
-                                Browse Products
+                                {t('common.browseProducts')}
                             </Link>
                             <form onSubmit={handleSearch} className="relative w-96">
                                 <input
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search products..."
+                                    placeholder={t('common.searchProducts')}
                                     className="w-full bg-green-700/50 border border-green-500 text-white placeholder-green-200 text-sm rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent py-2 pl-10 pr-4"
                                 />
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -77,7 +79,7 @@ export default function CustomerLayout({ children }) {
                                     href="/customer/dashboard"
                                     className="text-white hover:text-green-100 px-3 py-2 text-sm font-medium"
                                 >
-                                    Dashboard
+                                    {t('common.dashboard')}
                                 </Link>
                             )}
                         </div>
@@ -117,14 +119,14 @@ export default function CustomerLayout({ children }) {
                                                 href="/customer/profile"
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                             >
-                                                Your Profile
+                                                {t('common.yourProfile')}
                                             </Link>
                                             {auth.user.role !== 'vendor' && !auth.vendorApplication && (
                                                 <Link
                                                     href="/customer/vendor-application/create"
                                                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                 >
-                                                    Become a Vendor
+                                                    {t('common.becomeAVendor')}
                                                 </Link>
                                             )}
                                             <Link
@@ -133,7 +135,7 @@ export default function CustomerLayout({ children }) {
                                                 as="button"
                                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                             >
-                                                Sign Out
+                                                {t('common.signOut')}
                                             </Link>
                                         </div>
                                     </div>
@@ -144,13 +146,13 @@ export default function CustomerLayout({ children }) {
                                         href="/login"
                                         className="text-white hover:text-green-100"
                                     >
-                                        Login
+                                        {t('common.login')}
                                     </Link>
                                     <Link
                                         href="/register"
                                         className="bg-white text-green-600 hover:bg-green-50 px-4 py-2 rounded-lg text-sm font-medium"
                                     >
-                                        Register
+                                        {t('common.register')}
                                     </Link>
                                 </div>
                             )}
@@ -182,7 +184,7 @@ export default function CustomerLayout({ children }) {
                                         type="text"
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Search products..."
+                                        placeholder={t('common.searchProducts')}
                                         className="w-full bg-green-700/50 border border-green-500 text-white placeholder-green-200 text-sm rounded-lg focus:ring-2 focus:ring-green-400 focus:border-transparent py-2 pl-10 pr-4"
                                     />
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -196,7 +198,7 @@ export default function CustomerLayout({ children }) {
                                 href="/products"
                                 className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                             >
-                                Browse Products
+                                {t('common.browseProducts')}
                             </Link>
                             {auth.user ? (
                                 <>
@@ -204,20 +206,20 @@ export default function CustomerLayout({ children }) {
                                         href="/customer/dashboard"
                                         className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                                     >
-                                        Dashboard
+                                        {t('common.dashboard')}
                                     </Link>
                                     <Link
                                         href="/customer/profile"
                                         className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                                     >
-                                        Your Profile
+                                        {t('common.yourProfile')}
                                     </Link>
                                     {auth.user.role !== 'vendor' && !auth.vendorApplication && (
                                         <Link
                                             href="/customer/vendor-application/create"
                                             className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                                         >
-                                            Become a Vendor
+                                            {t('common.becomeAVendor')}
                                         </Link>
                                     )}
                                     <Link
@@ -226,7 +228,7 @@ export default function CustomerLayout({ children }) {
                                         as="button"
                                         className="block w-full text-left px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                                     >
-                                        Sign Out
+                                        {t('common.signOut')}
                                     </Link>
                                 </>
                             ) : (
@@ -235,13 +237,13 @@ export default function CustomerLayout({ children }) {
                                         href="/login"
                                         className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                                     >
-                                        Login
+                                        {t('common.login')}
                                     </Link>
                                     <Link
                                         href="/register"
                                         className="block px-4 py-2 text-base font-medium text-white hover:bg-green-700"
                                     >
-                                        Register
+                                        {t('common.register')}
                                     </Link>
                                 </>
                             )}
@@ -272,21 +274,21 @@ export default function CustomerLayout({ children }) {
 
                         {/* Quick Links */}
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-900 mb-4">Quick Links</h3>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('common.quickLinks')}</h3>
                             <ul className="space-y-3">
                                 <li>
                                     <Link href="/products" className="text-sm text-gray-600 hover:text-green-600">
-                                        Browse Products
+                                        {t('common.browseProducts')}
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/customer/orders" className="text-sm text-gray-600 hover:text-green-600">
-                                        My Orders
+                                        {t('common.myOrders')}
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/customer/profile" className="text-sm text-gray-600 hover:text-green-600">
-                                        My Profile
+                                        {t('common.myProfile')}
                                     </Link>
                                 </li>
                             </ul>
@@ -294,16 +296,16 @@ export default function CustomerLayout({ children }) {
 
                         {/* Help & Support */}
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-900 mb-4">Help & Support</h3>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('common.helpSupport')}</h3>
                             <ul className="space-y-3">
                                 <li>
                                     <Link href="/customer/profile" className="text-sm text-gray-600 hover:text-green-600">
-                                        Become a Vendor
+                                        {t('common.becomeAVendor')}
                                     </Link>
                                 </li>
                                 <li>
                                     <Link href="/contact" className="text-sm text-gray-600 hover:text-green-600">
-                                        Contact Us
+                                        {t('common.contactUs')}
                                     </Link>
                                 </li>
                                 <li>
@@ -316,7 +318,7 @@ export default function CustomerLayout({ children }) {
 
                         {/* Contact Info */}
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-900 mb-4">Contact</h3>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-4">{t('common.contact')}</h3>
                             <ul className="space-y-3 text-sm text-gray-600">
                                 <li className="flex items-center">
                                     <svg className="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,10 +344,10 @@ export default function CustomerLayout({ children }) {
                             </p>
                             <div className="flex space-x-6">
                                 <Link href="/privacy" className="text-sm text-gray-600 hover:text-green-600">
-                                    Privacy Policy
+                                    {t('common.privacyPolicy')}
                                 </Link>
                                 <Link href="/terms" className="text-sm text-gray-600 hover:text-green-600">
-                                    Terms of Service
+                                    {t('common.termsOfService')}
                                 </Link>
                             </div>
                         </div>

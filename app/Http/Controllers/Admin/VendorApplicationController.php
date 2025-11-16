@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\VendorApplication;
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -28,8 +29,28 @@ class VendorApplicationController extends Controller
     {
         $application->load('user');
 
+        // Convert produce_types IDs to category names
+        $produceTypes = $application->produce_types;
+        $categoryNames = [];
+        if (is_array($produceTypes) && !empty($produceTypes)) {
+            // Convert string IDs to integers if needed
+            $produceTypeIds = array_map(function($id) {
+                return is_numeric($id) ? (int)$id : $id;
+            }, $produceTypes);
+            
+            $categories = Category::whereIn('id', $produceTypeIds)->pluck('name', 'id');
+            $categoryNames = array_map(function($id) use ($categories) {
+                $numericId = is_numeric($id) ? (int)$id : $id;
+                return $categories[$numericId] ?? $id;
+            }, $produceTypes);
+        }
+
+        // Create a modified application array with category names
+        $applicationData = $application->toArray();
+        $applicationData['produce_types'] = $categoryNames;
+
         return Inertia::render('Admin/VendorApplications/Show', [
-            'application' => $application,
+            'application' => $applicationData,
             'idDocumentUrl' => Storage::disk('private')->url($application->id_document)
         ]);
     }

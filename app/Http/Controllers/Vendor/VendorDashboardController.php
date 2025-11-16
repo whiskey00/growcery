@@ -17,7 +17,10 @@ class VendorDashboardController extends Controller
     {
         $user = auth()->user();
 
-        $totalSales = Order::where('vendor_id', $user->id)->sum('total_price');
+        // Only count completed orders for sales
+        $totalSales = Order::where('vendor_id', $user->id)
+            ->where('status', 'completed')
+            ->sum('total_price');
         $totalOrders = Order::where('vendor_id', $user->id)->count();
         
         // Additional metrics
@@ -25,9 +28,10 @@ class VendorDashboardController extends Controller
         $activeProducts = Product::where('vendor_id', $user->id)->where('status', 'active')->count();
         $lowStockProducts = Product::where('vendor_id', $user->id)->where('quantity', '<=', 10)->count();
         
-        // This month's performance
+        // This month's performance - only count completed orders
         $thisMonth = Carbon::now()->startOfMonth();
         $thisMonthSales = Order::where('vendor_id', $user->id)
+            ->where('status', 'completed')
             ->where('created_at', '>=', $thisMonth)
             ->sum('total_price');
         $thisMonthOrders = Order::where('vendor_id', $user->id)
@@ -40,8 +44,9 @@ class VendorDashboardController extends Controller
             ->orderByDesc('orders_count')
             ->first();
 
-        // 🔹 Monthly earnings (last 12 months)
+        // 🔹 Monthly earnings (last 12 months) - only count completed orders
         $monthlyEarnings = Order::where('vendor_id', $user->id)
+            ->where('status', 'completed')
             ->selectRaw('MONTH(created_at) as month, SUM(total_price) as total')
             ->groupBy('month')
             ->get()
@@ -62,6 +67,7 @@ class VendorDashboardController extends Controller
                     ->join('products', 'order_product.product_id', '=', 'products.id')
                     ->where('order_product.product_id', $p->id)
                     ->where('orders.vendor_id', $user->id)
+                    ->where('orders.status', 'completed')
                     ->sum(\DB::raw('products.price * order_product.quantity')),
                 'image' => $p->image,
             ]);

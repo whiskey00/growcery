@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => trim(env('BROADCAST_CONNECTION', 'null')),
+    'default' => env('BROADCAST_CONNECTION') ?: 'null',
 
     /*
     |--------------------------------------------------------------------------

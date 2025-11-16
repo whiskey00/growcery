@@ -227,9 +227,9 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                         <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
                                         <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
                                     </svg>
-                                    <h3 className="text-sm font-semibold text-gray-900">Top Vendors</h3>
+                                    <h3 className="text-sm font-semibold text-gray-900">{t('customer.products.topVendors')}</h3>
                                 </div>
-                                <span className="text-xs text-gray-500 bg-blue-50 px-1.5 py-0.5 rounded-full">Rated</span>
+                                <span className="text-xs text-gray-500 bg-blue-50 px-1.5 py-0.5 rounded-full">{t('customer.products.rated')}</span>
                             </div>
                             
                             <div className="grid grid-cols-1 gap-2">
@@ -326,9 +326,9 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                                 <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
                                                 <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
                                             </svg>
-                                            <h2 className="text-sm font-semibold text-gray-900">Top Vendors</h2>
+                                            <h2 className="text-sm font-semibold text-gray-900">{t('customer.products.topVendors')}</h2>
                                         </div>
-                                        <span className="text-xs text-gray-500 bg-blue-50 px-1.5 py-0.5 rounded-full">Rated</span>
+                                        <span className="text-xs text-gray-500 bg-blue-50 px-1.5 py-0.5 rounded-full">{t('customer.products.rated')}</span>
                                     </div>
                                     
                                     <div className="space-y-2">
@@ -376,7 +376,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                                         </span>
                                                     </div>
                                                     <p className="text-xs text-gray-500">
-                                                        {vendor.total_products} products
+                                                        {vendor.total_products} {t('customer.products.products')}
                                                     </p>
                                                 </div>
                                                 <div className="flex-shrink-0">
@@ -398,9 +398,9 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                             <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                             </svg>
-                                            <h2 className="text-sm font-semibold text-gray-900">Top Sellers</h2>
+                                            <h2 className="text-sm font-semibold text-gray-900">{t('customer.products.topSellers')}</h2>
                                         </div>
-                                        <span className="text-xs text-gray-500 bg-yellow-50 px-1.5 py-0.5 rounded-full">Hot</span>
+                                        <span className="text-xs text-gray-500 bg-yellow-50 px-1.5 py-0.5 rounded-full">{t('customer.products.hotProducts')}</span>
                                     </div>
                                     
                                     {/* Slideshow Container */}
@@ -442,7 +442,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                                                             <div className="flex-1 min-w-0">
                                                                                 <h3 className="text-xs font-medium text-gray-900 truncate">{product.name}</h3>
                                                                                 <p className="text-xs text-green-600 font-semibold">₱{Number(product.price).toLocaleString()}</p>
-                                                                                <p className="text-xs text-yellow-600">{product.orders_count || 0} sold</p>
+                                                                                <p className="text-xs text-yellow-600">{product.orders_count || 0} {t('customer.products.sold')}</p>
                                                                             </div>
                                                                         </div>
                                                                         
@@ -579,7 +579,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                                                 </div>
                                                                 <span>{parseFloat(vendor.avg_rating).toFixed(1)}</span>
                                                                 <span>•</span>
-                                                                <span>{vendor.total_products} products</span>
+                                                                <span>{vendor.total_products} {t('customer.products.products')}</span>
                                                             </div>
                                                         </div>
                                                         <div className="flex-shrink-0">
@@ -638,9 +638,9 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                         <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                         </svg>
-                                        <h2 className="text-lg font-semibold text-gray-900">Top Sellers</h2>
+                                        <h2 className="text-lg font-semibold text-gray-900">{t('customer.products.topSellers')}</h2>
                                     </div>
-                                    <span className="text-sm text-gray-500 bg-yellow-50 px-3 py-1 rounded-full">Hot Products</span>
+                                    <span className="text-sm text-gray-500 bg-yellow-50 px-3 py-1 rounded-full">{t('customer.products.hotProducts')}</span>
                                 </div>
                                 
                                 {/* Slideshow Container */}
@@ -683,7 +683,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                                                             <div className="flex-1 min-w-0">
                                                                                 <h3 className="text-sm font-medium text-gray-900 truncate">{product.name}</h3>
                                                                                 <p className="text-sm text-green-600 font-semibold">₱{Number(product.price).toLocaleString()}</p>
-                                                                                <p className="text-xs text-yellow-600">{product.orders_count || 0} sold</p>
+                                                                                <p className="text-xs text-yellow-600">{product.orders_count || 0} {t('customer.products.sold')}</p>
                                                                             </div>
                                                                         </div>
                                                                         
@@ -696,7 +696,7 @@ export default function ProductBrowse({ products, categories, activeSearch, acti
                                                                                     : 'text-white bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
                                                                             }`}
                                                                         >
-                                                                            {isOutOfStock ? 'Out of Stock' : 'View Product'}
+                                                                            {isOutOfStock ? t('product.outOfStock') : t('customer.products.viewProduct')}
                                                                         </Link>
                                                                     </div>
                                                                 );

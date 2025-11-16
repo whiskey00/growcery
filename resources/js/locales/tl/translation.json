@@ -13,7 +13,21 @@
     "settings": "Mga Setting",
     "filters": "Mga Filter",
     "showFilters": "Ipakita ang mga Filter",
-    "hideFilters": "Itago ang mga Filter"
+    "hideFilters": "Itago ang mga Filter",
+    "browseProducts": "Tingnan ang mga Produkto",
+    "searchProducts": "Maghanap ng mga produkto...",
+    "dashboard": "Dashboard",
+    "yourProfile": "Iyong Profile",
+    "becomeAVendor": "Maging Tindero",
+    "signOut": "Mag-sign Out",
+    "myOrders": "Aking mga Order",
+    "myProfile": "Aking Profile",
+    "quickLinks": "Mabilis na Link",
+    "helpSupport": "Tulong at Suporta",
+    "contactUs": "Makipag-ugnayan sa Amin",
+    "contact": "Contact",
+    "privacyPolicy": "Patakaran sa Privacy",
+    "termsOfService": "Mga Tuntunin ng Serbisyo"
   },
   "product": {
     "addToCart": "Idagdag sa Kariton",
@@ -188,7 +202,8 @@
       "contact": "Contact",
       "address": "Address",
       "products": "Mga Produkto",
-      "quantity": "Dami"
+      "quantity": "Dami",
+      "actions": "Mga Aksyon"
     },
     "reviews": {
       "title": "Mga Review ng Produkto",
@@ -216,6 +231,37 @@
       "recentOrders": "Mga Bagong Order",
       "viewProduct": "Tingnan ang Produkto",
       "ratingDistribution": "Distribusyon ng Rating"
+    }
+  },
+  "customer": {
+    "dashboard": {
+      "welcomeBack": "Maligayang pagdating, {{name}}!",
+      "manageOrders": "Pamahalaan ang iyong mga order at tuklasin ang mga sariwang produkto",
+      "becomeAVendor": "Maging Tindero",
+      "continueShopping": "Magpatuloy sa Pamimili",
+      "browseFreshProduce": "Tingnan ang mga sariwang produkto at bagong item",
+      "viewProducts": "Tingnan ang mga Produkto",
+      "myOrders": "Aking mga Order",
+      "viewRecentOrders": "Tingnan ang iyong mga kamakailan at aktibong order",
+      "viewOrders": "Tingnan ang mga Order",
+      "viewProfile": "Tingnan ang Profile",
+      "checkPersonalInfo": "Suriin ang iyong personal na impormasyon",
+      "vendorDashboard": "Vendor Dashboard",
+      "manageVendorAccount": "Pamahalaan ang iyong vendor account",
+      "viewDashboard": "Tingnan ang Dashboard",
+      "recentOrders": "Mga Kamakailang Order",
+      "noRecentOrders": "Walang Kamakailang Order",
+      "onceYouPlaceOrder": "Kapag naglagay ka ng order, lalabas ito dito.",
+      "startShopping": "Magsimulang Mamili"
+    },
+    "products": {
+      "topSellers": "Mga Pinakamabentang Produkto",
+      "topVendors": "Mga Nangungunang Tindero",
+      "hotProducts": "Mainit na Produkto",
+      "rated": "Naka-rate",
+      "viewProduct": "Tingnan ang Produkto",
+      "sold": "nabenta",
+      "products": "mga produkto"
     }
   }
 } 

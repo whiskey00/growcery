@@ -70,8 +70,31 @@ class VendorApplicationController extends Controller
             ->latest()
             ->first();
 
+        // Convert produce_types IDs to category names
+        $applicationData = null;
+        if ($application) {
+            $produceTypes = $application->produce_types;
+            $categoryNames = [];
+            if (is_array($produceTypes) && !empty($produceTypes)) {
+                // Convert string IDs to integers if needed
+                $produceTypeIds = array_map(function($id) {
+                    return is_numeric($id) ? (int)$id : $id;
+                }, $produceTypes);
+                
+                $categories = Category::whereIn('id', $produceTypeIds)->pluck('name', 'id');
+                $categoryNames = array_map(function($id) use ($categories) {
+                    $numericId = is_numeric($id) ? (int)$id : $id;
+                    return $categories[$numericId] ?? $id;
+                }, $produceTypes);
+            }
+
+            // Create a modified application array with category names
+            $applicationData = $application->toArray();
+            $applicationData['produce_types'] = $categoryNames;
+        }
+
         return Inertia::render('Customer/VendorApplication/Status', [
-            'application' => $application
+            'application' => $applicationData
         ]);
     }
 

@@ -1,9 +1,11 @@
 import React from 'react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Link, usePage } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 
 export default function Dashboard() {
     const { auth, recentOrders, vendorApplication } = usePage().props;
+    const { t } = useTranslation();
     const user = auth?.user;
     const isActingVendor = user?.role === 'vendor';
 
@@ -67,9 +69,9 @@ export default function Dashboard() {
                     <div className="relative flex justify-between items-center">
                         <div className="space-y-3">
                             <h1 className="text-4xl font-bold text-white">
-                                Welcome back, {user?.name}!
+                                {t('customer.dashboard.welcomeBack', { name: user?.name })}
                             </h1>
-                            <p className="text-green-100 text-lg">Manage your orders and explore fresh products</p>
+                            <p className="text-green-100 text-lg">{t('customer.dashboard.manageOrders')}</p>
                         </div>
                         {!isActingVendor && (
                             vendorApplication ? (
@@ -84,7 +86,7 @@ export default function Dashboard() {
                                     href="/customer/vendor-application/create"
                                     className="inline-flex items-center px-8 py-4 bg-white text-green-700 border-2 border-white rounded-xl font-semibold text-sm uppercase tracking-wider hover:bg-green-50 hover:shadow-lg transform hover:-translate-y-0.5 transition duration-150 ease-in-out"
                                 >
-                                    Become a Vendor
+                                    {t('customer.dashboard.becomeAVendor')}
                                 </Link>
                             )
                         )}
@@ -103,13 +105,13 @@ export default function Dashboard() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-xl text-gray-800">Continue Shopping</h3>
-                                    <p className="text-gray-600">Browse fresh produce and new items</p>
+                                    <h3 className="font-semibold text-xl text-gray-800">{t('customer.dashboard.continueShopping')}</h3>
+                                    <p className="text-gray-600">{t('customer.dashboard.browseFreshProduce')}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="px-6 py-4 bg-gradient-to-r from-green-50 to-green-100 text-sm text-green-700 font-semibold group-hover:from-green-100 group-hover:to-green-200 transition-all duration-300">
-                            View Products →
+                            {t('customer.dashboard.viewProducts')} →
                         </div>
                     </Link>
 
@@ -123,13 +125,13 @@ export default function Dashboard() {
                                 </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-xl text-gray-800">My Orders</h3>
-                                    <p className="text-gray-600">View your recent and active orders</p>
+                                    <h3 className="font-semibold text-xl text-gray-800">{t('customer.dashboard.myOrders')}</h3>
+                                    <p className="text-gray-600">{t('customer.dashboard.viewRecentOrders')}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-blue-100 text-sm text-blue-700 font-semibold group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300">
-                            View Orders →
+                            {t('customer.dashboard.viewOrders')} →
                         </div>
                     </Link>
 
@@ -143,13 +145,13 @@ export default function Dashboard() {
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-xl text-gray-800">View Profile</h3>
-                                    <p className="text-gray-600">Check your personal information</p>
+                                    <h3 className="font-semibold text-xl text-gray-800">{t('customer.dashboard.viewProfile')}</h3>
+                                    <p className="text-gray-600">{t('customer.dashboard.checkPersonalInfo')}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-purple-100 text-sm text-purple-700 font-semibold group-hover:from-purple-100 group-hover:to-purple-200 transition-all duration-300">
-                            View Profile →
+                            {t('customer.dashboard.viewProfile')} →
                         </div>
                     </Link>
 
@@ -164,13 +166,13 @@ export default function Dashboard() {
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-xl text-gray-800">Vendor Dashboard</h3>
-                                        <p className="text-gray-600">Manage your vendor account</p>
+                                        <h3 className="font-semibold text-xl text-gray-800">{t('customer.dashboard.vendorDashboard')}</h3>
+                                        <p className="text-gray-600">{t('customer.dashboard.manageVendorAccount')}</p>
                                     </div>
                                 </div>
                             </div>
                             <div className="px-6 py-4 bg-gradient-to-r from-yellow-50 to-yellow-100 text-sm text-yellow-700 font-semibold group-hover:from-yellow-100 group-hover:to-yellow-200 transition-all duration-300">
-                                View Dashboard →
+                                {t('customer.dashboard.viewDashboard')} →
                             </div>
                         </Link>
                     )}
@@ -179,7 +181,7 @@ export default function Dashboard() {
                 {/* Recent Orders Section */}
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-100">
-                        <h2 className="text-xl font-semibold text-gray-800">Recent Orders</h2>
+                        <h2 className="text-xl font-semibold text-gray-800">{t('customer.dashboard.recentOrders')}</h2>
                     </div>
 
                     <div className="p-6">
@@ -188,16 +190,16 @@ export default function Dashboard() {
                                 <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
-                                <h3 className="mt-4 text-lg font-medium text-gray-900">No Recent Orders</h3>
+                                <h3 className="mt-4 text-lg font-medium text-gray-900">{t('customer.dashboard.noRecentOrders')}</h3>
                                 <p className="mt-2 text-sm text-gray-500">
-                                    Once you place an order, it will appear here.
+                                    {t('customer.dashboard.onceYouPlaceOrder')}
                                 </p>
                                 <div className="mt-6">
                                     <Link
                                         href="/products"
                                         className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                                     >
-                                        Start Shopping
+                                        {t('customer.dashboard.startShopping')}
                                     </Link>
                                 </div>
                             </div>

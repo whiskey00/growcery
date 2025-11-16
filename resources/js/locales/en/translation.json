@@ -13,7 +13,21 @@
     "settings": "Settings",
     "filters": "Filters",
     "showFilters": "Show Filters",
-    "hideFilters": "Hide Filters"
+    "hideFilters": "Hide Filters",
+    "browseProducts": "Browse Products",
+    "searchProducts": "Search products...",
+    "dashboard": "Dashboard",
+    "yourProfile": "Your Profile",
+    "becomeAVendor": "Become a Vendor",
+    "signOut": "Sign Out",
+    "myOrders": "My Orders",
+    "myProfile": "My Profile",
+    "quickLinks": "Quick Links",
+    "helpSupport": "Help & Support",
+    "contactUs": "Contact Us",
+    "contact": "Contact",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
   },
   "product": {
     "addToCart": "Add to Cart",
@@ -188,7 +202,8 @@
       "contact": "Contact",
       "address": "Address",
       "products": "Products",
-      "quantity": "Quantity"
+      "quantity": "Quantity",
+      "actions": "Actions"
     },
     "reviews": {
       "title": "Product Reviews",
@@ -216,6 +231,37 @@
       "recentOrders": "Recent Orders",
       "viewProduct": "View Product",
       "ratingDistribution": "Rating Distribution"
+    }
+  },
+  "customer": {
+    "dashboard": {
+      "welcomeBack": "Welcome back, {{name}}!",
+      "manageOrders": "Manage your orders and explore fresh products",
+      "becomeAVendor": "Become a Vendor",
+      "continueShopping": "Continue Shopping",
+      "browseFreshProduce": "Browse fresh produce and new items",
+      "viewProducts": "View Products",
+      "myOrders": "My Orders",
+      "viewRecentOrders": "View your recent and active orders",
+      "viewOrders": "View Orders",
+      "viewProfile": "View Profile",
+      "checkPersonalInfo": "Check your personal information",
+      "vendorDashboard": "Vendor Dashboard",
+      "manageVendorAccount": "Manage your vendor account",
+      "viewDashboard": "View Dashboard",
+      "recentOrders": "Recent Orders",
+      "noRecentOrders": "No Recent Orders",
+      "onceYouPlaceOrder": "Once you place an order, it will appear here.",
+      "startShopping": "Start Shopping"
+    },
+    "products": {
+      "topSellers": "Top Sellers",
+      "topVendors": "Top Vendors",
+      "hotProducts": "Hot Products",
+      "rated": "Rated",
+      "viewProduct": "View Product",
+      "sold": "sold",
+      "products": "products"
     }
   }
 } 
